@@ -1,0 +1,1423 @@
+618 个结果 - 182 文件
+
+pytorch • aten/src/ATen/native/DispatchStub.h:
+   30  //   }
+   31: //   REGISTER_DISPATCH(stub, &kernel);
+   32  //
+
+  293  #if defined(__CUDACC__)
+  294: #define REGISTER_DISPATCH(name, fn) REGISTER_CUDA_DISPATCH(name, fn)
+  295  #elif defined(__HIPCC__)
+
+  297  // is HIP in the PyTorch HIPify build.
+  298: #define REGISTER_DISPATCH(name, fn) REGISTER_CUDA_DISPATCH(name, fn)
+  299: // #define REGISTER_DISPATCH(name, fn) REGISTER_HIP_DISPATCH(name, fn)
+  300  #elif defined(__OBJC__) && defined(USE_MPS)
+  301  // NB: this macro must be used from a 'mm' file in order to dispatch a MPS kernel
+  302: #define REGISTER_DISPATCH(name, fn) REGISTER_MPS_DISPATCH(name, fn)
+  303  #elif defined(CPU_CAPABILITY)
+  304: #define REGISTER_DISPATCH(name, fn) REGISTER_ARCH_DISPATCH(name, CPU_CAPABILITY, fn)
+  305  #define REGISTER_NO_AVX512_DISPATCH(name)       \
+
+pytorch • aten/src/ATen/native/README.md:
+  541        backend-dependent logic is used in the implementation or it's implemented through DispatchStub.
+  542:       DispatchStub only support a backend if you explicitly provide a kernel through `REGISTER_DISPATCH`.
+  543        Typically it only supports a few in-tree backends like CPU, CUDA, QuantizedCPU etc but not
+
+pytorch • aten/src/ATen/native/cpu/Activation.cpp:
+  1432  
+  1433: REGISTER_DISPATCH(log_sigmoid_cpu_stub, &log_sigmoid_cpu_kernel);
+  1434: REGISTER_DISPATCH(log_sigmoid_backward_stub, &log_sigmoid_backward_cpu_kernel);
+  1435: REGISTER_DISPATCH(threshold_stub, &threshold_kernel);
+  1436: REGISTER_DISPATCH(elu_stub, &elu_kernel);
+  1437: REGISTER_DISPATCH(elu_backward_stub, &elu_backward_kernel);
+  1438: REGISTER_DISPATCH(GeluKernel, &GeluKernelImpl);
+  1439: REGISTER_DISPATCH(GeluBackwardKernel, &GeluBackwardKernelImpl);
+  1440: REGISTER_DISPATCH(hardtanh_backward_stub, &hardtanh_backward_kernel);
+  1441: REGISTER_DISPATCH(hardsigmoid_stub, &hardsigmoid_kernel);
+  1442: REGISTER_DISPATCH(hardsigmoid_backward_stub, &hardsigmoid_backward_kernel);
+  1443: REGISTER_DISPATCH(hardswish_stub, &hardswish_kernel);
+  1444: REGISTER_DISPATCH(hardswish_backward_stub, &hardswish_backward_kernel);
+  1445: REGISTER_DISPATCH(hardshrink_stub, &hardshrink_kernel);
+  1446: REGISTER_DISPATCH(softshrink_stub, &softshrink_kernel);
+  1447: REGISTER_DISPATCH(shrink_backward_stub, &shrink_backward_kernel);
+  1448: REGISTER_DISPATCH(leaky_relu_stub, &leaky_relu_kernel);
+  1449: REGISTER_DISPATCH(leaky_relu_backward_stub, &leaky_relu_backward_kernel);
+  1450: REGISTER_DISPATCH(softplus_stub, &softplus_kernel);
+  1451: REGISTER_DISPATCH(softplus_backward_stub, &softplus_backward_kernel);
+  1452: REGISTER_DISPATCH(glu_stub, &glu_kernel);
+  1453: REGISTER_DISPATCH(glu_backward_stub, &glu_backward_kernel);
+  1454: REGISTER_DISPATCH(glu_jvp_stub, &glu_jvp_kernel);
+  1455: REGISTER_DISPATCH(silu_stub, &silu_kernel);
+  1456: REGISTER_DISPATCH(silu_backward_stub, &silu_backward_kernel);
+  1457: REGISTER_DISPATCH(mish_stub, &mish_kernel);
+  1458: REGISTER_DISPATCH(mish_backward_stub, &mish_backward_kernel);
+  1459: REGISTER_DISPATCH(prelu_stub, &prelu_kernel);
+  1460: REGISTER_DISPATCH(prelu_backward_stub, &prelu_backward_kernel);
+  1461  
+
+pytorch • aten/src/ATen/native/cpu/AdaptiveAvgPoolKernel.cpp:
+  412  
+  413: REGISTER_DISPATCH(adaptive_avg_pool2d_kernel, &adaptive_avg_pool2d_kernel_impl);
+  414: REGISTER_DISPATCH(adaptive_avg_pool2d_backward_kernel, &adapative_avg_pool2d_backward_kernel_impl);
+  415  
+
+pytorch • aten/src/ATen/native/cpu/AdaptiveMaxPoolKernel.cpp:
+  484  
+  485: REGISTER_DISPATCH(adaptive_max_pool2d_kernel, &adaptive_max_pool2d_kernel_impl);
+  486: REGISTER_DISPATCH(adaptive_max_pool2d_backward_kernel, &adaptive_max_pool2d_backward_kernel_impl);
+  487  
+
+pytorch • aten/src/ATen/native/cpu/airy_ai.cpp:
+  22  
+  23: REGISTER_DISPATCH(special_airy_ai_stub, &CPU_CAPABILITY::airy_ai_kernel);
+  24  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cpu/AvgPoolKernel.cpp:
+  548  
+  549: REGISTER_DISPATCH(avg_pool2d_kernel, &avg_pool2d_kernel_impl);
+  550: REGISTER_DISPATCH(avg_pool2d_backward_kernel, &avg_pool2d_backward_kernel_impl);
+  551  
+
+pytorch • aten/src/ATen/native/cpu/batch_norm_kernel.cpp:
+  1295  
+  1296: REGISTER_DISPATCH(batch_norm_cpu_stub, &batch_norm_cpu_kernel);
+  1297: REGISTER_DISPATCH(batch_norm_cpu_collect_stats_stub, &batch_norm_cpu_collect_stats_kernel);
+  1298: REGISTER_DISPATCH(batch_norm_cpu_backward_stub, &batch_norm_cpu_backward_kernel);
+  1299  
+
+pytorch • aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:
+  1265  
+  1266: REGISTER_DISPATCH(add_clamp_stub, &add_clamp_kernel);
+  1267: REGISTER_DISPATCH(mul_stub, &mul_kernel);
+  1268: REGISTER_DISPATCH(div_true_stub, &div_true_kernel);
+  1269: REGISTER_DISPATCH(div_trunc_stub, &div_trunc_kernel);
+  1270: REGISTER_DISPATCH(div_floor_stub, &div_floor_kernel);
+  1271: REGISTER_DISPATCH(remainder_stub, &remainder_kernel);
+  1272: REGISTER_DISPATCH(atan2_stub, &atan2_kernel);
+  1273: REGISTER_DISPATCH(bitwise_and_stub, &bitwise_and_kernel);
+  1274: REGISTER_DISPATCH(bitwise_or_stub, &bitwise_or_kernel);
+  1275: REGISTER_DISPATCH(bitwise_xor_stub, &bitwise_xor_kernel);
+  1276: REGISTER_DISPATCH(lshift_stub, &lshift_kernel);
+  1277: REGISTER_DISPATCH(rshift_stub, &rshift_kernel);
+  1278: REGISTER_DISPATCH(logical_xor_stub, &logical_xor_kernel);
+  1279: REGISTER_DISPATCH(logical_and_stub, &logical_and_kernel);
+  1280: REGISTER_DISPATCH(logical_or_stub, &logical_or_kernel);
+  1281: REGISTER_DISPATCH(lt_stub, &lt_kernel);
+  1282: REGISTER_DISPATCH(le_stub, &le_kernel);
+  1283: REGISTER_DISPATCH(gt_stub, &gt_kernel);
+  1284: REGISTER_DISPATCH(ge_stub, &ge_kernel);
+  1285: REGISTER_DISPATCH(eq_stub, &eq_kernel);
+  1286: REGISTER_DISPATCH(ne_stub, &ne_kernel);
+  1287: REGISTER_DISPATCH(maximum_stub, &maximum_kernel);
+  1288: REGISTER_DISPATCH(minimum_stub, &minimum_kernel);
+  1289: REGISTER_DISPATCH(fmax_stub, &fmax_kernel);
+  1290: REGISTER_DISPATCH(fmin_stub, &fmin_kernel);
+  1291: REGISTER_DISPATCH(smooth_l1_stub, &smooth_l1_kernel);
+  1292: REGISTER_DISPATCH(huber_stub, &huber_kernel);
+  1293: REGISTER_DISPATCH(sigmoid_backward_stub, &sigmoid_backward_kernel);
+  1294: REGISTER_DISPATCH(logit_backward_stub, &logit_backward_kernel);
+  1295: REGISTER_DISPATCH(tanh_backward_stub, &tanh_backward_kernel);
+  1296: REGISTER_DISPATCH(mse_stub, &mse_kernel);
+  1297: REGISTER_DISPATCH(fmod_stub, &fmod_kernel);
+  1298: REGISTER_DISPATCH(logaddexp_stub, &logaddexp_kernel);
+  1299: REGISTER_DISPATCH(logaddexp2_stub, &logaddexp2_kernel);
+  1300: REGISTER_DISPATCH(gcd_stub, &gcd_kernel);
+  1301: REGISTER_DISPATCH(lcm_stub, &lcm_kernel);
+  1302: REGISTER_DISPATCH(hypot_stub, &hypot_kernel);
+  1303: REGISTER_DISPATCH(igamma_stub, &igamma_kernel);
+  1304: REGISTER_DISPATCH(igammac_stub, &igammac_kernel);
+  1305: REGISTER_DISPATCH(nextafter_stub, &nextafter_kernel);
+  1306: REGISTER_DISPATCH(heaviside_stub, &heaviside_kernel);
+  1307: REGISTER_DISPATCH(copysign_stub, &copysign_kernel);
+  1308: REGISTER_DISPATCH(xlogy_stub, &xlogy_kernel);
+  1309: REGISTER_DISPATCH(xlog1py_stub, &xlog1py_kernel);
+  1310: REGISTER_DISPATCH(zeta_stub, &zeta_kernel);
+  1311: REGISTER_DISPATCH(chebyshev_polynomial_t_stub, &chebyshev_polynomial_t_kernel);
+  1312: REGISTER_DISPATCH(chebyshev_polynomial_u_stub, &chebyshev_polynomial_u_kernel);
+  1313: REGISTER_DISPATCH(chebyshev_polynomial_v_stub, &chebyshev_polynomial_v_kernel);
+  1314: REGISTER_DISPATCH(chebyshev_polynomial_w_stub, &chebyshev_polynomial_w_kernel);
+  1315: REGISTER_DISPATCH(hermite_polynomial_h_stub, &hermite_polynomial_h_kernel);
+  1316: REGISTER_DISPATCH(hermite_polynomial_he_stub, &hermite_polynomial_he_kernel);
+  1317: REGISTER_DISPATCH(laguerre_polynomial_l_stub, &laguerre_polynomial_l_kernel);
+  1318: REGISTER_DISPATCH(legendre_polynomial_p_stub, &legendre_polynomial_p_kernel);
+  1319: REGISTER_DISPATCH(shifted_chebyshev_polynomial_t_stub, &shifted_chebyshev_polynomial_t_kernel);
+  1320: REGISTER_DISPATCH(shifted_chebyshev_polynomial_u_stub, &shifted_chebyshev_polynomial_u_kernel);
+  1321: REGISTER_DISPATCH(shifted_chebyshev_polynomial_v_stub, &shifted_chebyshev_polynomial_v_kernel);
+  1322: REGISTER_DISPATCH(shifted_chebyshev_polynomial_w_stub, &shifted_chebyshev_polynomial_w_kernel);
+  1323  
+
+pytorch • aten/src/ATen/native/cpu/BlasKernel.cpp:
+  324  
+  325: REGISTER_DISPATCH(cpublas::gemm_stub, &cpublas::cpublas_gemm_impl);
+  326: REGISTER_DISPATCH(cpublas::axpy_stub, &cpublas::cpublas_axpy_impl);
+  327: REGISTER_DISPATCH(cpublas::copy_stub, &cpublas::cpublas_copy_impl);
+  328  
+
+pytorch • aten/src/ATen/native/cpu/CatKernel.cpp:
+  65  
+  66: REGISTER_DISPATCH(cat_serial_stub, &cat_serial_kernel);
+  67  
+
+pytorch • aten/src/ATen/native/cpu/ChannelShuffleKernel.cpp:
+  113  
+  114: REGISTER_DISPATCH(channel_shuffle_kernel, &channel_shuffle_kernel_impl);
+  115  
+
+pytorch • aten/src/ATen/native/cpu/ComplexKernel.cpp:
+  27  
+  28: REGISTER_DISPATCH(complex_stub, &complex_kernel);
+  29: REGISTER_DISPATCH(polar_stub, &polar_kernel);
+  30  
+
+pytorch • aten/src/ATen/native/cpu/CopyKernel.cpp:
+  270  
+  271: REGISTER_DISPATCH(copy_stub, &copy_kernel);
+  272  
+
+pytorch • aten/src/ATen/native/cpu/CrossKernel.cpp:
+  78  
+  79: REGISTER_DISPATCH(cross_stub, &cross_kernel_impl);
+  80  
+
+pytorch • aten/src/ATen/native/cpu/DepthwiseConvKernel.cpp:
+  312  
+  313: REGISTER_DISPATCH(convolution_depthwise3x3_winograd_stub, &_convolution_depthwise3x3_winograd);
+  314  
+
+pytorch • aten/src/ATen/native/cpu/DistanceOpsKernel.cpp:
+  445  
+  446: REGISTER_DISPATCH(pdist_forward_stub, &pdist_forward_kernel_impl);
+  447: REGISTER_DISPATCH(pdist_backward_stub, &pdist_backward_kernel_impl);
+  448: REGISTER_DISPATCH(cdist_stub, &cdist_kernel_impl);
+  449: REGISTER_DISPATCH(cdist_backward_stub, &cdist_backward_kernel_impl);
+  450  
+
+pytorch • aten/src/ATen/native/cpu/DistributionKernels.cpp:
+  236  
+  237: REGISTER_DISPATCH(bernoulli_tensor_stub, &bernoulli_tensor_kernel);
+  238: REGISTER_DISPATCH(bernoulli_scalar_stub, &bernoulli_scalar_kernel);
+  239: REGISTER_DISPATCH(cauchy_stub, &cauchy_kernel);
+  240: REGISTER_DISPATCH(exponential_stub, &exponential_kernel);
+  241: REGISTER_DISPATCH(geometric_stub, &geometric_kernel);
+  242: REGISTER_DISPATCH(log_normal_stub, &log_normal_kernel);
+  243  #ifdef CPU_CAPABILITY_AVX512
+
+  247  #else
+  248: REGISTER_DISPATCH(normal_stub, &normal_kernel);
+  249  #endif
+  250: REGISTER_DISPATCH(uniform_stub, &uniform_kernel);
+  251: REGISTER_DISPATCH(random_from_to_stub, &random_from_to_kernel);
+  252: REGISTER_DISPATCH(random_full_64_bits_range_stub, &random_full_64_bits_range_kernel);
+  253: REGISTER_DISPATCH(random_stub, &random_kernel);
+  254  
+
+pytorch • aten/src/ATen/native/cpu/FillKernel.cpp:
+  58  
+  59: REGISTER_DISPATCH(fill_stub, &fill_kernel);
+  60  
+
+pytorch • aten/src/ATen/native/cpu/FunctionOfAMatrixUtilsKernel.cpp:
+  54  
+  55: REGISTER_DISPATCH(_compute_linear_combination_stub, &_compute_linear_combination_cpu_kernel);
+  56  
+
+pytorch • aten/src/ATen/native/cpu/GridSamplerKernel.cpp:
+  1317  
+  1318: REGISTER_DISPATCH(grid_sampler_2d_cpu_kernel, &grid_sampler_2d_cpu_kernel_impl);
+  1319: REGISTER_DISPATCH(grid_sampler_2d_backward_cpu_kernel, &grid_sampler_2d_backward_cpu_kernel_impl);
+  1320  
+
+pytorch • aten/src/ATen/native/cpu/group_norm_kernel.cpp:
+  1583  
+  1584: REGISTER_DISPATCH(GroupNormKernel, &GroupNormKernelImpl);
+  1585: REGISTER_DISPATCH(GroupNormBackwardKernel, &GroupNormBackwardKernelImpl);
+  1586  
+
+pytorch • aten/src/ATen/native/cpu/HistogramKernel.cpp:
+  310  
+  311: REGISTER_DISPATCH(histogramdd_stub, &histogramdd_kernel_impl);
+  312: REGISTER_DISPATCH(histogramdd_linear_stub, &histogramdd_linear_kernel_impl);
+  313: REGISTER_DISPATCH(histogram_select_outer_bin_edges_stub, &histogram_select_outer_bin_edges_impl);
+  314  
+
+pytorch • aten/src/ATen/native/cpu/IndexKernel.cpp:
+  773  
+  774: REGISTER_DISPATCH(index_stub, &index_kernel);
+  775: REGISTER_DISPATCH(index_fill_stub, &index_fill_kernel);
+  776: REGISTER_DISPATCH(index_copy_stub, &index_copy_kernel);
+  777: REGISTER_DISPATCH(index_put_stub, &index_put_kernel);
+  778: REGISTER_DISPATCH(put_stub, &put_kernel);
+  779: REGISTER_DISPATCH(take_stub, &take_kernel);
+  780: REGISTER_DISPATCH(masked_fill_stub, &masked_fill_kernel);
+  781: REGISTER_DISPATCH(masked_select_serial_stub, &masked_select_serial_kernel);
+  782: REGISTER_DISPATCH(masked_select_stub, &masked_select_kernel);
+  783: REGISTER_DISPATCH(masked_scatter_stub, &masked_scatter_kernel);
+  784: REGISTER_DISPATCH(flip_stub, &flip_kernel);
+  785  
+
+pytorch • aten/src/ATen/native/cpu/layer_norm_kernel.cpp:
+  619  
+  620: REGISTER_DISPATCH(LayerNormKernel, &LayerNormKernelImpl);
+  621: REGISTER_DISPATCH(LayerNormBackwardKernel, &LayerNormBackwardKernelImpl);
+  622  
+
+pytorch • aten/src/ATen/native/cpu/LerpKernel.cpp:
+  131  
+  132: REGISTER_DISPATCH(lerp_kernel_scalar_weight, &lerp_scalar_kernel);
+  133: REGISTER_DISPATCH(lerp_kernel_tensor_weight, &lerp_tensor_kernel);
+  134  
+
+pytorch • aten/src/ATen/native/cpu/LinearAlgebraKernel.cpp:
+  87  
+  88: REGISTER_DISPATCH(addr_stub, &addr_kernel);
+  89  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cpu/MaxPooling.cpp:
+  56  
+  57: REGISTER_DISPATCH(max_pool1d_stub, &max_pool1d_impl);
+  58  
+
+pytorch • aten/src/ATen/native/cpu/MaxPoolKernel.cpp:
+  558  
+  559: REGISTER_DISPATCH(max_pool2d_kernel, &max_pool2d_kernel_impl);
+  560: REGISTER_DISPATCH(max_pool2d_backward_kernel, &max_pool2d_backward_kernel_impl);
+  561  
+
+pytorch • aten/src/ATen/native/cpu/MaxUnpoolKernel.cpp:
+  268  
+  269: REGISTER_DISPATCH(max_unpool2d_kernel, &max_unpool2d_kernel_impl);
+  270: REGISTER_DISPATCH(max_unpool3d_kernel, &max_unpool3d_kernel_impl);
+  271  
+
+pytorch • aten/src/ATen/native/cpu/MultinomialKernel.cpp:
+  239  
+  240: REGISTER_DISPATCH(
+  241      multinomial_with_replacement_stub,
+
+pytorch • aten/src/ATen/native/cpu/PaddingKernel.cpp:
+  427  // reflection padding
+  428: REGISTER_DISPATCH(reflection_pad1d_kernel, &reflection_pad1d_kernel_impl);
+  429: REGISTER_DISPATCH(reflection_pad1d_backward_kernel, &reflection_pad1d_backward_kernel_impl);
+  430: REGISTER_DISPATCH(reflection_pad2d_kernel, &reflection_pad2d_kernel_impl);
+  431: REGISTER_DISPATCH(reflection_pad2d_backward_kernel, &reflection_pad2d_backward_kernel_impl);
+  432: REGISTER_DISPATCH(reflection_pad3d_kernel, &reflection_pad3d_kernel_impl);
+  433: REGISTER_DISPATCH(reflection_pad3d_backward_kernel, &reflection_pad3d_backward_kernel_impl);
+  434  
+  435  // replication padding
+  436: REGISTER_DISPATCH(replication_pad1d_kernel, &replication_pad1d_kernel_impl);
+  437: REGISTER_DISPATCH(replication_pad1d_backward_kernel, &replication_pad1d_backward_kernel_impl);
+  438: REGISTER_DISPATCH(replication_pad2d_kernel, &replication_pad2d_kernel_impl);
+  439: REGISTER_DISPATCH(replication_pad2d_backward_kernel, &replication_pad2d_backward_kernel_impl);
+  440: REGISTER_DISPATCH(replication_pad3d_kernel, &replication_pad3d_kernel_impl);
+  441: REGISTER_DISPATCH(replication_pad3d_backward_kernel, &replication_pad3d_backward_kernel_impl);
+  442  
+
+pytorch • aten/src/ATen/native/cpu/PixelShuffleKernel.cpp:
+  249  
+  250: REGISTER_DISPATCH(pixel_shuffle_kernel, &pixel_shuffle_kernel_impl);
+  251: REGISTER_DISPATCH(pixel_unshuffle_kernel, &pixel_unshuffle_kernel_impl);
+  252  
+
+pytorch • aten/src/ATen/native/cpu/PointwiseOpsKernel.cpp:
+  238  
+  239: REGISTER_DISPATCH(addcmul_stub, &addcmul_cpu_kernel);
+  240: REGISTER_DISPATCH(addcdiv_stub, &addcdiv_cpu_kernel);
+  241: REGISTER_DISPATCH(smooth_l1_backward_stub, &smooth_l1_backward_cpu_kernel);
+  242: REGISTER_DISPATCH(huber_backward_stub, &huber_backward_cpu_kernel);
+  243: REGISTER_DISPATCH(mse_backward_stub, &mse_backward_cpu_kernel);
+  244  
+
+pytorch • aten/src/ATen/native/cpu/PowKernel.cpp:
+  146  
+  147: REGISTER_DISPATCH(pow_tensor_tensor_stub, &CPU_CAPABILITY::pow_tensor_tensor_kernel);
+  148: REGISTER_DISPATCH(pow_tensor_scalar_stub, &CPU_CAPABILITY::pow_tensor_scalar_kernel);
+  149  
+
+pytorch • aten/src/ATen/native/cpu/RangeFactoriesKernel.cpp:
+  73  
+  74: REGISTER_DISPATCH(arange_stub, &arange_kernel);
+  75: REGISTER_DISPATCH(linspace_stub, &linspace_kernel);
+  76  
+
+pytorch • aten/src/ATen/native/cpu/README.md:
+  42     cpu directory, and register it to
+  43:    the dispatch using `REGISTER_DISPATCH(fnNameImpl, &your_kernel)`.
+  44  
+
+pytorch • aten/src/ATen/native/cpu/ReduceAllOpsKernel.cpp:
+  222  
+  223: REGISTER_DISPATCH(min_all_stub, &min_all_kernel_impl);
+  224: REGISTER_DISPATCH(max_all_stub, &max_all_kernel_impl);
+  225: REGISTER_DISPATCH(aminmax_allreduce_stub, &aminmax_allreduce_kernel);
+  226  
+
+pytorch • aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:
+  450  
+  451: REGISTER_DISPATCH(std_var_stub, &std_var_kernel_impl);
+  452: REGISTER_DISPATCH(prod_stub, &prod_kernel_impl);
+  453: REGISTER_DISPATCH(mean_stub, &mean_kernel_impl);
+  454: REGISTER_DISPATCH(norm_stub, &norm_kernel_tensor_iterator_impl);
+  455: REGISTER_DISPATCH(and_stub, &and_kernel_impl);
+  456: REGISTER_DISPATCH(or_stub, &or_kernel_impl);
+  457: REGISTER_DISPATCH(min_values_stub, &min_values_kernel_impl);
+  458: REGISTER_DISPATCH(max_values_stub, &max_values_kernel_impl);
+  459: REGISTER_DISPATCH(argmax_stub, &argmax_kernel_impl);
+  460: REGISTER_DISPATCH(argmin_stub, &argmin_kernel_impl);
+  461: REGISTER_DISPATCH(cumprod_stub, &cumprod_cpu_kernel);
+  462: REGISTER_DISPATCH(cumsum_stub, &cumsum_cpu_kernel);
+  463: REGISTER_DISPATCH(logcumsumexp_stub, &logcumsumexp_cpu_kernel);
+  464  
+
+pytorch • aten/src/ATen/native/cpu/RenormKernel.cpp:
+  35  
+  36: REGISTER_DISPATCH(renorm_scale_factor_stub, &renorm_scale_factor_impl);
+  37  
+
+pytorch • aten/src/ATen/native/cpu/SampledAddmmKernel.cpp:
+  96  
+  97: REGISTER_DISPATCH(sampled_addmm_sparse_csr_stub, &sampled_addmm_sparse_csr_kernel);
+  98  
+
+pytorch • aten/src/ATen/native/cpu/scaled_modified_bessel_k0.cpp:
+  22  
+  23: REGISTER_DISPATCH(special_scaled_modified_bessel_k0_stub, &CPU_CAPABILITY::scaled_modified_bessel_k0_kernel);
+  24  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cpu/scaled_modified_bessel_k1.cpp:
+  22  
+  23: REGISTER_DISPATCH(special_scaled_modified_bessel_k1_stub, &CPU_CAPABILITY::scaled_modified_bessel_k1_kernel);
+  24  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cpu/ScatterGatherKernel.cpp:
+  867  
+  868: REGISTER_DISPATCH(gather_stub, &gather_cpu_kernel);
+  869: REGISTER_DISPATCH(scatter_stub, &scatter_cpu_kernel);
+  870: REGISTER_DISPATCH(scatter_fill_stub, &scatter_fill_cpu_kernel);
+  871: REGISTER_DISPATCH(scatter_add_stub, &scatter_add_cpu_kernel);
+  872: REGISTER_DISPATCH(scatter_reduce_stub, &scatter_reduce_cpu_kernel);
+  873: REGISTER_DISPATCH(scatter_scalar_reduce_stub, &scatter_scalar_reduce_cpu_kernel);
+  874: REGISTER_DISPATCH(scatter_reduce_two_stub, &scatter_reduce_two_cpu_kernel);
+  875  
+  876  // fast paths for GNN usage
+  877: REGISTER_DISPATCH(scatter_add_expanded_index_stub, &scatter_add_expanded_index_kernel);
+  878: REGISTER_DISPATCH(scatter_reduce_expanded_index_stub, &scatter_reduce_expanded_index_kernel);
+  879: REGISTER_DISPATCH(gather_expanded_index_stub, &gather_expanded_index_kernel);
+  880  
+
+pytorch • aten/src/ATen/native/cpu/SoftMaxKernel.cpp:
+  1281  
+  1282: REGISTER_DISPATCH(softmax_lastdim_kernel, &softmax_lastdim_kernel_impl);
+  1283: REGISTER_DISPATCH(log_softmax_lastdim_kernel, &log_softmax_lastdim_kernel_impl);
+  1284: REGISTER_DISPATCH(
+  1285      softmax_backward_lastdim_kernel,
+  1286      &softmax_backward_lastdim_kernel_impl);
+  1287: REGISTER_DISPATCH(
+  1288      log_softmax_backward_lastdim_kernel,
+
+  1290  
+  1291: REGISTER_DISPATCH(softmax_kernel, &softmax_kernel_impl);
+  1292: REGISTER_DISPATCH(log_softmax_kernel, &log_softmax_kernel_impl);
+  1293: REGISTER_DISPATCH(softmax_backward_kernel, &softmax_backward_kernel_impl);
+  1294: REGISTER_DISPATCH(
+  1295      log_softmax_backward_kernel,
+
+pytorch • aten/src/ATen/native/cpu/SortingKernel.cpp:
+  245  
+  246: REGISTER_DISPATCH(sort_stub, &sort_kernel);
+  247: REGISTER_DISPATCH(topk_stub, &topk_kernel);
+  248  
+
+pytorch • aten/src/ATen/native/cpu/SparseFactories.cpp:
+  62  
+  63: REGISTER_DISPATCH(spdiags_kernel_stub, &_spdiags_kernel_cpu)
+  64  
+
+pytorch • aten/src/ATen/native/cpu/spherical_bessel_j0.cpp:
+  22  
+  23: REGISTER_DISPATCH(special_spherical_bessel_j0_stub, &CPU_CAPABILITY::spherical_bessel_j0_kernel);
+  24  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cpu/SpmmReduceKernel.cpp:
+  504  
+  505: REGISTER_DISPATCH(spmm_reduce_stub, &spmm_reduce_kernel);
+  506: REGISTER_DISPATCH(spmm_reduce_arg_stub, &spmm_reduce_arg_kernel);
+  507: REGISTER_DISPATCH(spmm_reduce_backward_input_stub, &spmm_reduce_backward_input_kernel);
+  508: REGISTER_DISPATCH(spmm_reduce_backward_input_arg_stub, &spmm_reduce_backward_input_arg_kernel);
+  509: REGISTER_DISPATCH(spmm_reduce_backward_other_stub, &spmm_reduce_backward_other_kernel);
+  510: REGISTER_DISPATCH(spmm_reduce_backward_other_arg_stub, &spmm_reduce_backward_other_arg_kernel);
+  511  
+
+pytorch • aten/src/ATen/native/cpu/StackKernel.cpp:
+  21  
+  22: REGISTER_DISPATCH(stack_serial_stub, &stack_serial_kernel);
+  23  
+
+pytorch • aten/src/ATen/native/cpu/SumKernel.cpp:
+  631  
+  632: REGISTER_DISPATCH(sum_stub, &sum_kernel_impl);
+  633  
+
+  636  #ifndef CPU_CAPABILITY_AVX512
+  637: REGISTER_DISPATCH(nansum_stub, &nansum_kernel_impl);
+  638  #else
+
+pytorch • aten/src/ATen/native/cpu/TensorCompareKernel.cpp:
+  401  
+  402: REGISTER_DISPATCH(max_stub, &max_kernel_impl);
+  403: REGISTER_DISPATCH(min_stub, &min_kernel_impl);
+  404: REGISTER_DISPATCH(aminmax_stub, &aminmax_kernel);
+  405: REGISTER_DISPATCH(where_kernel, &where_kernel_impl);
+  406: REGISTER_DISPATCH(isposinf_stub, &isposinf_kernel_impl);
+  407: REGISTER_DISPATCH(isneginf_stub, &isneginf_kernel_impl);
+  408: REGISTER_DISPATCH(mode_stub, &mode_kernel_impl);
+  409: REGISTER_DISPATCH(clamp_stub, &clamp_kernel_impl);
+  410: REGISTER_DISPATCH(clamp_scalar_stub, &clamp_scalar_kernel_impl);
+  411: REGISTER_DISPATCH(clamp_min_scalar_stub, &clamp_min_scalar_kernel_impl);
+  412: REGISTER_DISPATCH(clamp_max_scalar_stub, &clamp_max_scalar_kernel_impl);
+  413: REGISTER_DISPATCH(isin_default_stub, &isin_default_kernel_cpu);
+  414  
+
+pytorch • aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:
+  702    }                                                                                 \
+  703:   REGISTER_DISPATCH(op##_stub, &CPU_CAPABILITY::op##_kernel)
+  704  
+
+  715    }                                                                                              \
+  716:   REGISTER_DISPATCH(op##_stub, &CPU_CAPABILITY::op##_kernel)
+  717  
+
+  728    }                                                                                              \
+  729:   REGISTER_DISPATCH(op##_stub, &CPU_CAPABILITY::op##_kernel)
+  730  
+
+  732  
+  733: REGISTER_DISPATCH(rsqrt_stub, &CPU_CAPABILITY::rsqrt_kernel);
+  734: REGISTER_DISPATCH(sigmoid_stub, &CPU_CAPABILITY::sigmoid_kernel);
+  735: REGISTER_DISPATCH(logit_stub, &CPU_CAPABILITY::logit_kernel);
+  736: REGISTER_DISPATCH(abs_stub, &CPU_CAPABILITY::abs_kernel);
+  737: REGISTER_DISPATCH(angle_stub, &CPU_CAPABILITY::angle_kernel);
+  738: REGISTER_DISPATCH(conj_physical_stub, &CPU_CAPABILITY::conj_kernel);
+  739: REGISTER_DISPATCH(exp2_stub, &CPU_CAPABILITY::exp2_kernel);
+  740: REGISTER_DISPATCH(bitwise_not_stub, &CPU_CAPABILITY::bitwise_not_kernel);
+  741: REGISTER_DISPATCH(logical_not_stub, &CPU_CAPABILITY::logical_not_kernel);
+  742: REGISTER_DISPATCH(frac_stub, &CPU_CAPABILITY::frac_kernel);
+  743: REGISTER_DISPATCH(reciprocal_stub, &CPU_CAPABILITY::reciprocal_kernel);
+  744: REGISTER_DISPATCH(nan_to_num_stub, &CPU_CAPABILITY::nan_to_num_kernel);
+  745: REGISTER_DISPATCH(neg_stub, &CPU_CAPABILITY::neg_kernel);
+  746: REGISTER_DISPATCH(sign_stub, &CPU_CAPABILITY::sign_kernel);
+  747: REGISTER_DISPATCH(signbit_stub, &CPU_CAPABILITY::signbit_kernel);
+  748: REGISTER_DISPATCH(sgn_stub, &CPU_CAPABILITY::sgn_kernel);
+  749: REGISTER_DISPATCH(sinc_stub, &CPU_CAPABILITY::sinc_kernel);
+  750: REGISTER_DISPATCH(sinh_stub, &CPU_CAPABILITY::sinh_kernel);
+  751: REGISTER_DISPATCH(cosh_stub, &CPU_CAPABILITY::cosh_kernel);
+  752: REGISTER_DISPATCH(acosh_stub, &CPU_CAPABILITY::acosh_kernel);
+  753: REGISTER_DISPATCH(asinh_stub, &CPU_CAPABILITY::asinh_kernel);
+  754: REGISTER_DISPATCH(atanh_stub, &CPU_CAPABILITY::atanh_kernel);
+  755: REGISTER_DISPATCH(digamma_stub, &CPU_CAPABILITY::digamma_kernel);
+  756: REGISTER_DISPATCH(trigamma_stub, &CPU_CAPABILITY::trigamma_kernel);
+  757: REGISTER_DISPATCH(polygamma_stub, &CPU_CAPABILITY::polygamma_kernel);
+  758: REGISTER_DISPATCH(kaiser_window_stub, &CPU_CAPABILITY::kaiser_window_kernel);
+  759: REGISTER_DISPATCH(special_entr_stub, &CPU_CAPABILITY::entr_kernel);
+  760: REGISTER_DISPATCH(frexp_stub, &CPU_CAPABILITY::frexp_kernel);
+  761: REGISTER_DISPATCH(special_i0e_stub, &CPU_CAPABILITY::i0e_kernel);
+  762: REGISTER_DISPATCH(special_ndtri_stub, &CPU_CAPABILITY::ndtri_kernel);
+  763: REGISTER_DISPATCH(special_log_ndtr_stub, &CPU_CAPABILITY::log_ndtr_kernel);
+  764: REGISTER_DISPATCH(special_i1_stub, &CPU_CAPABILITY::i1_kernel);
+  765: REGISTER_DISPATCH(special_i1e_stub, &CPU_CAPABILITY::i1e_kernel);
+  766: REGISTER_DISPATCH(special_erfcx_stub, &CPU_CAPABILITY::erfcx_kernel);
+  767: REGISTER_DISPATCH(round_decimals_stub, &CPU_CAPABILITY::round_decimals_kernel);
+  768: REGISTER_DISPATCH(special_bessel_j0_stub, &CPU_CAPABILITY::bessel_j0_kernel);
+  769: REGISTER_DISPATCH(special_bessel_j1_stub, &CPU_CAPABILITY::bessel_j1_kernel);
+  770: REGISTER_DISPATCH(special_bessel_y0_stub, &CPU_CAPABILITY::bessel_y0_kernel);
+  771: REGISTER_DISPATCH(special_bessel_y1_stub, &CPU_CAPABILITY::bessel_y1_kernel);
+  772: REGISTER_DISPATCH(special_modified_bessel_i0_stub, &CPU_CAPABILITY::modified_bessel_i0_kernel);
+  773: REGISTER_DISPATCH(special_modified_bessel_i1_stub, &CPU_CAPABILITY::modified_bessel_i1_kernel);
+  774: REGISTER_DISPATCH(special_modified_bessel_k0_stub, &CPU_CAPABILITY::modified_bessel_k0_kernel);
+  775: REGISTER_DISPATCH(special_modified_bessel_k1_stub, &CPU_CAPABILITY::modified_bessel_k1_kernel);
+  776  
+
+pytorch • aten/src/ATen/native/cpu/Unfold2d.cpp:
+  447  
+  448: REGISTER_DISPATCH(unfolded2d_copy_stub, &unfolded2d_copy_kernel);
+  449: REGISTER_DISPATCH(unfolded2d_acc_stub, &unfolded2d_acc_kernel);
+  450  
+
+pytorch • aten/src/ATen/native/cpu/UnfoldBackwardKernel.cpp:
+  149  
+  150: REGISTER_DISPATCH(unfold_backward_stub, &unfold_backward_cpu_kernel);
+  151  
+
+pytorch • aten/src/ATen/native/cpu/UpSampleKernel.cpp:
+  2024  
+  2025: REGISTER_DISPATCH(upsample_nearest1d_kernel, &upsample_nearest1d_kernel_impl);
+  2026: REGISTER_DISPATCH(_upsample_nearest_exact1d_kernel, &_upsample_nearest_exact1d_kernel_impl);
+  2027: REGISTER_DISPATCH(upsample_nearest2d_kernel, &upsample_nearest2d_kernel_impl);
+  2028: REGISTER_DISPATCH(_upsample_nearest_exact2d_kernel, &_upsample_nearest_exact2d_kernel_impl);
+  2029: REGISTER_DISPATCH(upsample_nearest3d_kernel, &upsample_nearest3d_kernel_impl);
+  2030: REGISTER_DISPATCH(_upsample_nearest_exact3d_kernel, &_upsample_nearest_exact3d_kernel_impl);
+  2031  
+  2032: REGISTER_DISPATCH(upsample_linear1d_kernel, &upsample_linear1d_kernel_impl);
+  2033: REGISTER_DISPATCH(upsample_bilinear2d_kernel, &upsample_bilinear2d_kernel_impl);
+  2034: REGISTER_DISPATCH(_upsample_bilinear2d_aa_kernel, &upsample_bilinear2d_aa_kernel_impl);
+  2035: REGISTER_DISPATCH(_upsample_bilinear2d_aa_backward_kernel, &upsample_bilinear2d_aa_backward_kernel_impl);
+  2036: REGISTER_DISPATCH(upsample_trilinear3d_kernel, &upsample_trilinear3d_kernel_impl);
+  2037  
+  2038: REGISTER_DISPATCH(upsample_bicubic2d_kernel, &upsample_bicubic2d_kernel_impl);
+  2039: REGISTER_DISPATCH(_upsample_bicubic2d_aa_kernel, &upsample_bicubic2d_aa_kernel_impl);
+  2040: REGISTER_DISPATCH(_upsample_bicubic2d_aa_backward_kernel, &upsample_bicubic2d_aa_backward_kernel_impl);
+  2041  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cpu/UpSampleMoreKernel.cpp:
+  770  
+  771: REGISTER_DISPATCH(upsample_nearest1d_backward_kernel, &upsample_nearest1d_backward_kernel_impl);
+  772: REGISTER_DISPATCH(_upsample_nearest_exact1d_backward_kernel, &_upsample_nearest_exact1d_backward_kernel_impl);
+  773: REGISTER_DISPATCH(upsample_nearest2d_backward_kernel, &upsample_nearest2d_backward_kernel_impl);
+  774: REGISTER_DISPATCH(_upsample_nearest_exact2d_backward_kernel, &_upsample_nearest_exact2d_backward_kernel_impl);
+  775: REGISTER_DISPATCH(upsample_nearest3d_backward_kernel, &upsample_nearest3d_backward_kernel_impl);
+  776: REGISTER_DISPATCH(_upsample_nearest_exact3d_backward_kernel, &_upsample_nearest_exact3d_backward_kernel_impl);
+  777  
+  778: REGISTER_DISPATCH(upsample_linear1d_backward_kernel, &upsample_linear1d_backward_kernel_impl);
+  779: REGISTER_DISPATCH(upsample_bilinear2d_backward_kernel, &upsample_bilinear2d_backward_kernel_impl);
+  780: REGISTER_DISPATCH(upsample_trilinear3d_backward_kernel, &upsample_trilinear3d_backward_kernel_impl);
+  781  
+
+pytorch • aten/src/ATen/native/cpu/WeightNormKernel.cpp:
+  445  
+  446: REGISTER_DISPATCH(weight_norm_stub, &weight_norm_kernel);
+  447: REGISTER_DISPATCH(weight_norm_backward_stub, &weight_norm_backward_kernel);
+  448  
+
+pytorch • aten/src/ATen/native/cuda/AbsKernel.cu:
+  48  
+  49:   REGISTER_DISPATCH(abs_stub, &abs_kernel_cuda);
+  50  
+
+pytorch • aten/src/ATen/native/cuda/ActivationEluKernel.cu:
+  82  
+  83: REGISTER_DISPATCH(elu_stub, &elu_kernel);
+  84: REGISTER_DISPATCH(elu_backward_stub, &elu_backward_kernel);
+  85  
+
+pytorch • aten/src/ATen/native/cuda/ActivationGluKernel.cu:
+  137  
+  138: REGISTER_DISPATCH(glu_stub, &glu_kernel);
+  139: REGISTER_DISPATCH(glu_jvp_stub, &glu_jvp_kernel);
+  140  
+
+pytorch • aten/src/ATen/native/cuda/ActivationHardshrinkKernel.cu:
+  36  
+  37: REGISTER_DISPATCH(hardshrink_stub, &hardshrink_kernel);
+  38  
+
+pytorch • aten/src/ATen/native/cuda/ActivationHardsigmoidKernel.cu:
+  70  
+  71: REGISTER_DISPATCH(hardsigmoid_stub, &hardsigmoid_kernel);
+  72: REGISTER_DISPATCH(hardsigmoid_backward_stub, &hardsigmoid_backward_kernel);
+  73  
+
+pytorch • aten/src/ATen/native/cuda/ActivationHardswishKernel.cu:
+  59  
+  60: REGISTER_DISPATCH(hardswish_stub, &hardswish_kernel);
+  61: REGISTER_DISPATCH(hardswish_backward_stub, &hardswish_backward_kernel);
+  62  
+
+pytorch • aten/src/ATen/native/cuda/ActivationHardtanhKernel.cu:
+  42  
+  43: REGISTER_DISPATCH(hardtanh_backward_stub, &hardtanh_backward_kernel);
+  44  
+
+pytorch • aten/src/ATen/native/cuda/ActivationLeakyReluKernel.cu:
+  58  
+  59: REGISTER_DISPATCH(leaky_relu_stub, &leaky_relu_kernel);
+  60: REGISTER_DISPATCH(leaky_relu_backward_stub, &leaky_relu_backward_kernel);
+  61  
+
+pytorch • aten/src/ATen/native/cuda/ActivationLogSigmoidKernel.cu:
+  61  
+  62: REGISTER_DISPATCH(log_sigmoid_backward_stub, &log_sigmoid_backward_kernel);
+  63  
+
+pytorch • aten/src/ATen/native/cuda/ActivationMishKernel.cu:
+  60  
+  61: REGISTER_DISPATCH(mish_stub, &mish_kernel);
+  62: REGISTER_DISPATCH(mish_backward_stub, &mish_backward_kernel);
+  63  
+
+pytorch • aten/src/ATen/native/cuda/ActivationPreluKernel.cu:
+  44  
+  45: REGISTER_DISPATCH(prelu_stub, &prelu_kernel);
+  46: REGISTER_DISPATCH(prelu_backward_stub, &prelu_backward_kernel);
+  47  
+
+pytorch • aten/src/ATen/native/cuda/ActivationSiluKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(silu_stub, &silu_kernel);
+  57: REGISTER_DISPATCH(silu_backward_stub, &silu_backward_kernel);
+  58  
+
+pytorch • aten/src/ATen/native/cuda/ActivationSoftplusKernel.cu:
+  70  
+  71: REGISTER_DISPATCH(softplus_stub, &softplus_kernel);
+  72: REGISTER_DISPATCH(softplus_backward_stub, &softplus_backward_kernel);
+  73  
+
+pytorch • aten/src/ATen/native/cuda/ActivationSoftshrinkKernel.cu:
+  54  
+  55: REGISTER_DISPATCH(softshrink_stub, &softshrink_kernel);
+  56: REGISTER_DISPATCH(shrink_backward_stub, &shrink_backward_kernel);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/ActivationThresholdKernel.cu:
+  49  
+  50: REGISTER_DISPATCH(threshold_stub, &threshold_kernel_cuda);
+  51  
+
+pytorch • aten/src/ATen/native/cuda/airy_ai.cu:
+  40  
+  41: REGISTER_DISPATCH(special_airy_ai_stub, &airy_ai_kernel_cuda);
+  42  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/bessel_j0.cu:
+  40  
+  41: REGISTER_DISPATCH(special_bessel_j0_stub, &bessel_j0_kernel_cuda);
+  42  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/bessel_j1.cu:
+  40  
+  41: REGISTER_DISPATCH(special_bessel_j1_stub, &bessel_j1_kernel_cuda);
+  42  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/bessel_y0.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_bessel_y0_stub, &bessel_y0_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/bessel_y1.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_bessel_y1_stub, &bessel_y1_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/BinaryBitwiseOpsKernels.cu:
+  75  
+  76: REGISTER_DISPATCH(bitwise_and_stub, &bitwise_and_kernel_cuda);
+  77: REGISTER_DISPATCH(bitwise_or_stub, &bitwise_or_kernel_cuda);
+  78: REGISTER_DISPATCH(bitwise_xor_stub, &bitwise_xor_kernel_cuda);
+  79  
+
+pytorch • aten/src/ATen/native/cuda/BinaryDivFloorKernel.cu:
+  79  
+  80: REGISTER_DISPATCH(div_floor_stub, &binary_internal::div_floor_kernel_cuda);
+  81  
+
+pytorch • aten/src/ATen/native/cuda/BinaryDivTrueKernel.cu:
+  58  
+  59: REGISTER_DISPATCH(div_true_stub, &binary_internal::div_true_kernel_cuda);
+  60  
+
+pytorch • aten/src/ATen/native/cuda/BinaryDivTruncKernel.cu:
+  50  
+  51: REGISTER_DISPATCH(div_trunc_stub, &binary_internal::div_trunc_kernel_cuda);
+  52  
+
+pytorch • aten/src/ATen/native/cuda/BinaryGeometricKernels.cu:
+  35  
+  36: REGISTER_DISPATCH(atan2_stub, &atan2_kernel_cuda);
+  37: REGISTER_DISPATCH(hypot_stub, &hypot_kernel_cuda);
+  38  
+
+pytorch • aten/src/ATen/native/cuda/BinaryLogicalOpsKernels.cu:
+  122  
+  123: REGISTER_DISPATCH(logical_and_stub, &logical_and_kernel_cuda);
+  124: REGISTER_DISPATCH(logical_or_stub, &logical_or_kernel_cuda);
+  125: REGISTER_DISPATCH(logical_xor_stub, &logical_xor_kernel_cuda);
+  126  
+
+pytorch • aten/src/ATen/native/cuda/BinaryMiscBackwardOpsKernels.cu:
+  126  
+  127: REGISTER_DISPATCH(sigmoid_backward_stub, &sigmoid_backward_kernel_cuda);
+  128: REGISTER_DISPATCH(logit_backward_stub, &logit_backward_kernel_cuda);
+  129: REGISTER_DISPATCH(tanh_backward_stub, &tanh_backward_kernel_cuda);
+  130  
+
+pytorch • aten/src/ATen/native/cuda/BinaryMiscOpsKernels.cu:
+  71  
+  72: REGISTER_DISPATCH(smooth_l1_stub, &smooth_l1_kernel_cuda);
+  73: REGISTER_DISPATCH(huber_stub, &huber_kernel_cuda);
+  74: REGISTER_DISPATCH(mse_stub, &mse_kernel_cuda);
+  75: REGISTER_DISPATCH(xlogy_stub, &xlogy_kernel_cuda);
+  76: REGISTER_DISPATCH(xlog1py_stub, &xlog1py_kernel_cuda);
+  77  
+
+pytorch • aten/src/ATen/native/cuda/BinaryMulKernel.cu:
+  45  
+  46: REGISTER_DISPATCH(mul_stub, &mul_kernel_cuda);
+  47  
+
+pytorch • aten/src/ATen/native/cuda/BinaryRemainderKernel.cu:
+  57  
+  58: REGISTER_DISPATCH(remainder_stub, &remainder_kernel_cuda);
+  59: REGISTER_DISPATCH(fmod_stub, &fmod_kernel_cuda);
+  60  
+
+pytorch • aten/src/ATen/native/cuda/BinaryShiftOpsKernels.cu:
+  40  
+  41: REGISTER_DISPATCH(lshift_stub, &lshift_kernel_cuda);
+  42: REGISTER_DISPATCH(rshift_stub, &rshift_kernel_cuda);
+  43  
+
+pytorch • aten/src/ATen/native/cuda/chebyshev_polynomial_t.cu:
+  29  
+  30:         REGISTER_DISPATCH(chebyshev_polynomial_t_stub, &chebyshev_polynomial_t_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/chebyshev_polynomial_u.cu:
+  29  
+  30:         REGISTER_DISPATCH(chebyshev_polynomial_u_stub, &chebyshev_polynomial_u_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/chebyshev_polynomial_v.cu:
+  29  
+  30:         REGISTER_DISPATCH(chebyshev_polynomial_v_stub, &chebyshev_polynomial_v_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/chebyshev_polynomial_w.cu:
+  29  
+  30:         REGISTER_DISPATCH(chebyshev_polynomial_w_stub, &chebyshev_polynomial_w_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/CompareEQKernel.cu:
+  46  
+  47: REGISTER_DISPATCH(eq_stub, &eq_kernel_cuda);
+  48: REGISTER_DISPATCH(ne_stub, &ne_kernel_cuda);
+  49  
+
+pytorch • aten/src/ATen/native/cuda/CompareKernels.cu:
+   97  
+   98: REGISTER_DISPATCH(ge_stub, &ge_kernel_cuda);
+   99: REGISTER_DISPATCH(gt_stub, &gt_kernel_cuda);
+  100: REGISTER_DISPATCH(le_stub, &le_kernel_cuda);
+  101: REGISTER_DISPATCH(lt_stub, &lt_kernel_cuda);
+  102  
+
+pytorch • aten/src/ATen/native/cuda/ComplexKernel.cu:
+  32  
+  33: REGISTER_DISPATCH(complex_stub, &complex_kernel_cuda);
+  34: REGISTER_DISPATCH(polar_stub, &polar_kernel_cuda);
+  35  
+
+pytorch • aten/src/ATen/native/cuda/Copy.cu:
+  269  
+  270: REGISTER_DISPATCH(copy_stub, &copy_kernel_cuda);
+  271  
+
+pytorch • aten/src/ATen/native/cuda/CopysignKernel.cu:
+  30  
+  31: REGISTER_DISPATCH(copysign_stub, &copysign_kernel_cuda);
+  32  
+
+pytorch • aten/src/ATen/native/cuda/CrossKernel.cu:
+  89  
+  90: REGISTER_DISPATCH(cross_stub, &cross_impl);
+  91  
+
+pytorch • aten/src/ATen/native/cuda/DistanceKernel.cu:
+  359  
+  360: REGISTER_DISPATCH(pdist_forward_stub, &pdist_forward_kernel_impl);
+  361: REGISTER_DISPATCH(pdist_backward_stub, &pdist_backward_kernel_impl);
+  362: REGISTER_DISPATCH(cdist_stub, &cdist_kernel_impl);
+  363: REGISTER_DISPATCH(cdist_backward_stub, &cdist_backward_kernel_impl);
+  364  
+
+pytorch • aten/src/ATen/native/cuda/DistributionBernoulli.cu:
+  36  
+  37: REGISTER_DISPATCH(bernoulli_tensor_stub, &bernoulli_tensor_kernel);
+  38: REGISTER_DISPATCH(bernoulli_scalar_stub, &bernoulli_scalar_kernel);
+  39  
+
+pytorch • aten/src/ATen/native/cuda/DistributionCauchyKernel.cu:
+  12  
+  13: REGISTER_DISPATCH(cauchy_stub, &cauchy_kernel);
+  14  
+
+pytorch • aten/src/ATen/native/cuda/DistributionExponentialKernel.cu:
+  12  
+  13: REGISTER_DISPATCH(exponential_stub, &exponential_kernel);
+  14  
+
+pytorch • aten/src/ATen/native/cuda/DistributionGeometricKernel.cu:
+  12  
+  13: REGISTER_DISPATCH(geometric_stub, &geometric_kernel);
+  14  
+
+pytorch • aten/src/ATen/native/cuda/DistributionLogNormalKernel.cu:
+  12  
+  13: REGISTER_DISPATCH(log_normal_stub, &log_normal_kernel);
+  14  
+
+pytorch • aten/src/ATen/native/cuda/DistributionNormal.cu:
+  12  
+  13: REGISTER_DISPATCH(normal_stub, &normal_kernel);
+  14  
+
+pytorch • aten/src/ATen/native/cuda/DistributionRandomKernel.cu:
+  22  
+  23: REGISTER_DISPATCH(random_from_to_stub, &random_from_to_kernel);
+  24: REGISTER_DISPATCH(random_stub, &random_kernel);
+  25: REGISTER_DISPATCH(random_full_64_bits_range_stub, &random_full_64_bits_range_kernel);
+  26  
+
+pytorch • aten/src/ATen/native/cuda/DistributionUniform.cu:
+  12  
+  13: REGISTER_DISPATCH(uniform_stub, &uniform_kernel);
+  14  
+
+pytorch • aten/src/ATen/native/cuda/FillKernel.cu:
+  26  
+  27: REGISTER_DISPATCH(fill_stub, &fill_kernel_cuda);
+  28  
+
+pytorch • aten/src/ATen/native/cuda/FunctionOfAMatrixUtilsKernel.cu:
+  111  
+  112: REGISTER_DISPATCH(_compute_linear_combination_stub, &_compute_linear_combination_cuda_kernel);
+  113  
+
+pytorch • aten/src/ATen/native/cuda/GcdLcmKernel.cu:
+  54  
+  55: REGISTER_DISPATCH(gcd_stub, &gcd_kernel_cuda);
+  56: REGISTER_DISPATCH(lcm_stub, &lcm_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/group_norm_kernel.cu:
+  992  
+  993: REGISTER_DISPATCH(GroupNormKernel, &GroupNormKernelImpl);
+  994: REGISTER_DISPATCH(GroupNormBackwardKernel, &GroupNormBackwardKernelImpl);
+  995  
+
+pytorch • aten/src/ATen/native/cuda/hermite_polynomial_h.cu:
+  29  
+  30:         REGISTER_DISPATCH(hermite_polynomial_h_stub, &hermite_polynomial_h_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/hermite_polynomial_he.cu:
+  29  
+  30:         REGISTER_DISPATCH(hermite_polynomial_he_stub, &hermite_polynomial_he_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/IGammaKernel.cu:
+  547  
+  548: REGISTER_DISPATCH(igamma_stub, &igamma_kernel_cuda);
+  549: REGISTER_DISPATCH(igammac_stub, &igammac_kernel_cuda);
+  550  
+
+pytorch • aten/src/ATen/native/cuda/IndexKernel.cu:
+  460  
+  461: REGISTER_DISPATCH(index_stub, &index_kernel);
+  462: REGISTER_DISPATCH(index_fill_stub, &index_fill_kernel);
+  463: REGISTER_DISPATCH(index_copy_stub, &index_copy_kernel);
+  464: REGISTER_DISPATCH(index_put_stub, &index_put_kernel);
+  465: REGISTER_DISPATCH(put_stub, &put_kernel);
+  466: REGISTER_DISPATCH(take_stub, &take_kernel);
+  467: REGISTER_DISPATCH(flip_stub, &flip_kernel);
+  468  
+
+pytorch • aten/src/ATen/native/cuda/laguerre_polynomial_l.cu:
+  29  
+  30:         REGISTER_DISPATCH(laguerre_polynomial_l_stub, &laguerre_polynomial_l_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/layer_norm_kernel.cu:
+  1383  
+  1384: REGISTER_DISPATCH(LayerNormKernel, &LayerNormKernelImpl);
+  1385: REGISTER_DISPATCH(LayerNormBackwardKernel, &LayerNormBackwardKernelImpl);
+  1386  
+
+pytorch • aten/src/ATen/native/cuda/legendre_polynomial_p.cu:
+  29  
+  30:         REGISTER_DISPATCH(legendre_polynomial_p_stub, &legendre_polynomial_p_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/Lerp.cu:
+  123  
+  124: REGISTER_DISPATCH(lerp_kernel_tensor_weight, &lerp_tensor_kernel);
+  125: REGISTER_DISPATCH(lerp_kernel_scalar_weight, &lerp_scalar_kernel);
+  126  
+
+pytorch • aten/src/ATen/native/cuda/LinearAlgebra.cu:
+  139  
+  140: REGISTER_DISPATCH(unpack_pivots_stub, &unpack_pivots_cuda_kernel);
+  141: REGISTER_DISPATCH(addr_stub, &addr_kernel_cuda);
+  142  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/LogAddExpKernel.cu:
+  53  
+  54: REGISTER_DISPATCH(logaddexp_stub, &logaddexp_kernel_cuda);
+  55: REGISTER_DISPATCH(logaddexp2_stub, &logaddexp2_kernel_cuda);
+  56  
+
+pytorch • aten/src/ATen/native/cuda/MaxMinElementwiseKernel.cu:
+  92  
+  93: REGISTER_DISPATCH(maximum_stub, &maximum_kernel_cuda);
+  94: REGISTER_DISPATCH(minimum_stub, &minimum_kernel_cuda);
+  95: REGISTER_DISPATCH(fmax_stub, &fmax_kernel_cuda);
+  96: REGISTER_DISPATCH(fmin_stub, &fmin_kernel_cuda);
+  97  
+
+pytorch • aten/src/ATen/native/cuda/modified_bessel_i0.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_modified_bessel_i0_stub, &modified_bessel_i0_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/modified_bessel_i1.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_modified_bessel_i1_stub, &modified_bessel_i1_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/modified_bessel_k0.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_modified_bessel_k0_stub, &modified_bessel_k0_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/modified_bessel_k1.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_modified_bessel_k1_stub, &modified_bessel_k1_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/MultinomialKernel.cu:
+  459  
+  460: REGISTER_DISPATCH(
+  461      multinomial_with_replacement_stub,
+
+pytorch • aten/src/ATen/native/cuda/PointwiseOpsKernel.cu:
+  145  
+  146: REGISTER_DISPATCH(addcdiv_stub, &addcdiv_cuda_kernel);
+  147: REGISTER_DISPATCH(addcmul_stub, &addcmul_cuda_kernel);
+  148: REGISTER_DISPATCH(smooth_l1_backward_stub, &smooth_l1_backward_cuda_kernel);
+  149: REGISTER_DISPATCH(huber_backward_stub, &huber_backward_cuda_kernel);
+  150: REGISTER_DISPATCH(mse_backward_stub, &mse_backward_cuda_kernel);
+  151  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/PowKernel.cu:
+  205  
+  206: REGISTER_DISPATCH(pow_tensor_tensor_stub, &pow_tensor_tensor_kernel);
+  207: REGISTER_DISPATCH(pow_tensor_scalar_stub, &pow_tensor_scalar_kernel);
+  208  
+
+pytorch • aten/src/ATen/native/cuda/ReduceArgMaxKernel.cu:
+  43  
+  44: REGISTER_DISPATCH(argmax_stub, &argmax_kernel_cuda);
+  45  
+
+pytorch • aten/src/ATen/native/cuda/ReduceArgMinKernel.cu:
+  43  
+  44: REGISTER_DISPATCH(argmin_stub, &argmin_kernel_cuda);
+  45  
+
+pytorch • aten/src/ATen/native/cuda/ReduceLogicKernel.cu:
+  34  
+  35: REGISTER_DISPATCH(and_stub, &and_kernel_cuda);
+  36: REGISTER_DISPATCH(or_stub, &or_kernel_cuda);
+  37  
+
+pytorch • aten/src/ATen/native/cuda/ReduceMaxValuesKernel.cu:
+  58  
+  59: REGISTER_DISPATCH(max_values_stub, &max_values_kernel_cuda);
+  60  
+
+pytorch • aten/src/ATen/native/cuda/ReduceMinValuesKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(min_values_stub, &min_values_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/ReduceMomentKernel.cu:
+  64  
+  65: REGISTER_DISPATCH(std_var_stub, &std_var_kernel_cuda);
+  66: REGISTER_DISPATCH(mean_stub, &mean_kernel_cuda);
+  67  
+
+pytorch • aten/src/ATen/native/cuda/ReduceSumProdKernel.cu:
+  210  
+  211: REGISTER_DISPATCH(sum_stub, &sum_kernel_cuda);
+  212: REGISTER_DISPATCH(nansum_stub, &nansum_kernel_cuda);
+  213: REGISTER_DISPATCH(prod_stub, &prod_kernel_cuda);
+  214  
+
+pytorch • aten/src/ATen/native/cuda/RenormKernel.cu:
+  26  
+  27: REGISTER_DISPATCH(renorm_scale_factor_stub, &renorm_scale_factor_impl);
+  28  
+
+pytorch • aten/src/ATen/native/cuda/scaled_modified_bessel_k0.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_scaled_modified_bessel_k0_stub, &scaled_modified_bessel_k0_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/scaled_modified_bessel_k1.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_scaled_modified_bessel_k1_stub, &scaled_modified_bessel_k1_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/ScatterGatherKernel.cu:
+  564  
+  565: REGISTER_DISPATCH(gather_stub, &gather_cuda_kernel);
+  566: REGISTER_DISPATCH(scatter_stub, &scatter_cuda_kernel);
+  567: REGISTER_DISPATCH(scatter_fill_stub, &scatter_fill_cuda_kernel);
+  568: REGISTER_DISPATCH(scatter_add_stub, &scatter_add_cuda_kernel);
+  569: REGISTER_DISPATCH(scatter_reduce_stub, &scatter_reduce_cuda_kernel);
+  570: REGISTER_DISPATCH(scatter_scalar_reduce_stub, &scatter_scalar_reduce_cuda_kernel);
+  571: REGISTER_DISPATCH(scatter_reduce_two_stub, &scatter_reduce_two_cuda_kernel);
+  572  
+
+pytorch • aten/src/ATen/native/cuda/SegmentReduce.cu:
+  595  
+  596: REGISTER_DISPATCH(_segment_reduce_lengths_stub, &_segment_reduce_lengths_cuda_kernel);
+  597: REGISTER_DISPATCH(_segment_reduce_offsets_stub, &_segment_reduce_offsets_cuda_kernel);
+  598: REGISTER_DISPATCH(
+  599      _segment_reduce_lengths_backward_stub,
+  600      &_segment_reduce_lengths_backward_cuda_kernel);
+  601: REGISTER_DISPATCH(
+  602    _segment_reduce_offsets_backward_stub,
+
+pytorch • aten/src/ATen/native/cuda/shifted_chebyshev_polynomial_t.cu:
+  29  
+  30:         REGISTER_DISPATCH(shifted_chebyshev_polynomial_t_stub, &shifted_chebyshev_polynomial_t_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/shifted_chebyshev_polynomial_u.cu:
+  29  
+  30:         REGISTER_DISPATCH(shifted_chebyshev_polynomial_u_stub, &shifted_chebyshev_polynomial_u_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/shifted_chebyshev_polynomial_v.cu:
+  30  
+  31: REGISTER_DISPATCH(shifted_chebyshev_polynomial_v_stub, &shifted_chebyshev_polynomial_v_kernel_cuda);
+  32  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/shifted_chebyshev_polynomial_w.cu:
+  29  
+  30:         REGISTER_DISPATCH(shifted_chebyshev_polynomial_w_stub, &shifted_chebyshev_polynomial_w_kernel_cuda);
+  31  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/Sort.cpp:
+  122  // TODO: we should handle this accordingly when we start using REGISTER_HIP_DISPATCH,
+  123: // since REGISTER_DISPATCH won't work in this cpp file.
+  124  // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+
+pytorch • aten/src/ATen/native/cuda/SpectralOps.cu:
+  121  
+  122: REGISTER_DISPATCH(fft_fill_with_conjugate_symmetry_stub, &_fft_fill_with_conjugate_symmetry_cuda_);
+  123  
+
+pytorch • aten/src/ATen/native/cuda/spherical_bessel_j0.cu:
+  39  
+  40:         REGISTER_DISPATCH(special_spherical_bessel_j0_stub, &spherical_bessel_j0_kernel_cuda);
+  41  } // namespace at::native
+
+pytorch • aten/src/ATen/native/cuda/StepKernel.cu:
+  29  
+  30: REGISTER_DISPATCH(nextafter_stub, &nextafter_kernel_cuda);
+  31: REGISTER_DISPATCH(heaviside_stub, &heaviside_kernel_cuda);
+  32  
+
+pytorch • aten/src/ATen/native/cuda/TensorCompare.cu:
+   95  
+   96: REGISTER_DISPATCH(where_kernel, &where_kernel_impl);
+   97: REGISTER_DISPATCH(isposinf_stub, &isposinf_kernel_impl);
+   98: REGISTER_DISPATCH(isneginf_stub, &isneginf_kernel_impl);
+   99: REGISTER_DISPATCH(clamp_stub, &clamp_kernel_impl);
+  100: REGISTER_DISPATCH(clamp_scalar_stub, &clamp_scalar_kernel_impl);
+  101: REGISTER_DISPATCH(clamp_min_scalar_stub, &clamp_min_scalar_kernel_impl);
+  102: REGISTER_DISPATCH(clamp_max_scalar_stub, &clamp_max_scalar_kernel_impl);
+  103  
+
+pytorch • aten/src/ATen/native/cuda/UnaryComplexKernels.cu:
+   98  
+   99: REGISTER_DISPATCH(angle_stub, &angle_kernel_cuda);
+  100: REGISTER_DISPATCH(conj_physical_stub, &conj_kernel_cuda);
+  101  
+
+pytorch • aten/src/ATen/native/cuda/UnaryFractionKernels.cu:
+  190  
+  191: REGISTER_DISPATCH(ceil_stub, &ceil_kernel_cuda);
+  192: REGISTER_DISPATCH(frac_stub, &frac_kernel_cuda);
+  193: REGISTER_DISPATCH(floor_stub, &floor_kernel_cuda);
+  194: REGISTER_DISPATCH(reciprocal_stub, &reciprocal_kernel_cuda);
+  195: REGISTER_DISPATCH(round_stub, &round_kernel_cuda);
+  196: REGISTER_DISPATCH(round_decimals_stub, &round_decimals_kernel_cuda);
+  197: REGISTER_DISPATCH(trunc_stub, &trunc_kernel_cuda);
+  198  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGammaKernels.cu:
+  105  
+  106: REGISTER_DISPATCH(digamma_stub, &digamma_kernel_cuda);
+  107: REGISTER_DISPATCH(polygamma_stub, &polygamma_kernel_cuda);
+  108: REGISTER_DISPATCH(lgamma_stub, &lgamma_kernel_cuda);
+  109  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricAcoshKernel.cu:
+  56  
+  57: REGISTER_DISPATCH(acosh_stub, &acosh_kernel_cuda);
+  58  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricAcosKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(acos_stub, &acos_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricAsinhKernel.cu:
+  56  
+  57: REGISTER_DISPATCH(asinh_stub, &asinh_kernel_cuda);
+  58  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricAsinKernel.cu:
+  52  
+  53: REGISTER_DISPATCH(asin_stub, &asin_kernel_cuda);
+  54  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricAtanhKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(atanh_stub, &atanh_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricAtanKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(atan_stub, &atan_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricCoshKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(cosh_stub, &cosh_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricCosKernel.cu:
+  54  
+  55: REGISTER_DISPATCH(cos_stub, &cos_kernel_cuda);
+  56  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricSinhKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(sinh_stub, &sinh_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricSinKernel.cu:
+  54  
+  55: REGISTER_DISPATCH(sin_stub, &sin_kernel_cuda);
+  56  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricTanhKernel.cu:
+  56  
+  57: REGISTER_DISPATCH(tanh_stub, &tanh_kernel_cuda);
+  58  
+
+pytorch • aten/src/ATen/native/cuda/UnaryGeometricTanKernel.cu:
+  55  
+  56: REGISTER_DISPATCH(tan_stub, &tan_kernel_cuda);
+  57  
+
+pytorch • aten/src/ATen/native/cuda/UnaryLogKernels.cu:
+  115  
+  116: REGISTER_DISPATCH(log_stub, &log_kernel_cuda);
+  117: REGISTER_DISPATCH(log10_stub, &log10_kernel_cuda);
+  118: REGISTER_DISPATCH(log2_stub, &log2_kernel_cuda);
+  119: REGISTER_DISPATCH(log1p_stub, &log1p_kernel_cuda);
+  120  
+
+pytorch • aten/src/ATen/native/cuda/UnaryOpsKernel.cu:
+  250  
+  251: REGISTER_DISPATCH(bitwise_not_stub, &bitwise_not_kernel_cuda);
+  252: REGISTER_DISPATCH(exp_stub, &exp_kernel_cuda);
+  253: REGISTER_DISPATCH(expm1_stub, &expm1_kernel_cuda);
+  254: REGISTER_DISPATCH(rsqrt_stub, &rsqrt_kernel_cuda);
+  255: REGISTER_DISPATCH(sqrt_stub, &sqrt_kernel_cuda);
+  256: REGISTER_DISPATCH(nan_to_num_stub, &nan_to_num_kernel_cuda);
+  257: REGISTER_DISPATCH(frexp_stub, &frexp_kernel_cuda);
+  258  
+
+pytorch • aten/src/ATen/native/cuda/UnarySignKernels.cu:
+  130  
+  131: REGISTER_DISPATCH(logical_not_stub, &logical_not_kernel_cuda);
+  132: REGISTER_DISPATCH(neg_stub, &neg_kernel_cuda);
+  133: REGISTER_DISPATCH(sign_stub, &sign_kernel_cuda);
+  134: REGISTER_DISPATCH(signbit_stub, &signbit_kernel_cuda);
+  135: REGISTER_DISPATCH(sgn_stub, &sgn_kernel_cuda);
+  136  
+
+pytorch • aten/src/ATen/native/cuda/UnarySpecialOpsKernel.cu:
+  379  
+  380: REGISTER_DISPATCH(exp2_stub, &exp2_kernel_cuda);
+  381: REGISTER_DISPATCH(i0_stub, &i0_kernel_cuda);
+  382: REGISTER_DISPATCH(special_i0e_stub, &i0e_kernel_cuda);
+  383: REGISTER_DISPATCH(special_i1_stub, &i1_kernel_cuda);
+  384: REGISTER_DISPATCH(special_i1e_stub, &i1e_kernel_cuda);
+  385: REGISTER_DISPATCH(sigmoid_stub, &sigmoid_kernel_cuda);
+  386: REGISTER_DISPATCH(sinc_stub, &sinc_kernel_cuda);
+  387: REGISTER_DISPATCH(logit_stub, &logit_kernel_cuda);
+  388: REGISTER_DISPATCH(erf_stub, &erf_kernel_cuda);
+  389: REGISTER_DISPATCH(erfc_stub, &erfc_kernel_cuda);
+  390: REGISTER_DISPATCH(erfinv_stub, &erfinv_kernel_cuda);
+  391: REGISTER_DISPATCH(kaiser_window_stub, &kaiser_window_kernel_cuda);
+  392: REGISTER_DISPATCH(special_entr_stub, &entr_kernel_cuda);
+  393: REGISTER_DISPATCH(special_ndtri_stub, &ndtri_kernel_cuda);
+  394: REGISTER_DISPATCH(special_log_ndtr_stub, &log_ndtr_kernel_cuda);
+  395: REGISTER_DISPATCH(special_erfcx_stub, &erfcx_kernel_cuda);
+  396  
+
+pytorch • aten/src/ATen/native/cuda/UnfoldBackwardKernel.cu:
+  159  
+  160: REGISTER_DISPATCH(unfold_backward_stub, &unfold_backward_cuda_kernel);
+  161  
+
+pytorch • aten/src/ATen/native/cuda/ZetaKernel.cu:
+  36  
+  37: REGISTER_DISPATCH(zeta_stub, &zeta_kernel_cuda);
+  38  
+
+pytorch • aten/src/ATen/native/mps/operations/BinaryKernel.mm:
+  262  
+  263: REGISTER_DISPATCH(fmax_stub, &fmax_mps_kernel);
+  264: REGISTER_DISPATCH(fmin_stub, &fmin_mps_kernel);
+  265: REGISTER_DISPATCH(copysign_stub, &copysign_mps_kernel);
+  266  
+
+pytorch • aten/src/ATen/native/mps/operations/CrossKernel.mm:
+  203  
+  204: REGISTER_DISPATCH(cross_stub, &cross_mps_impl);
+  205  } // namespace at::native
+
+pytorch • aten/src/ATen/native/mps/operations/HistogramKernel.mm:
+  412  
+  413: REGISTER_DISPATCH(histogramdd_stub, &histogramdd_kernel);
+  414: REGISTER_DISPATCH(histogramdd_linear_stub, &histogramdd_linear_kernel);
+  415: REGISTER_DISPATCH(histogram_select_outer_bin_edges_stub, &histogram_select_outer_bin_edges_kernel);
+  416  } // namespace at::native
+
+pytorch • aten/src/ATen/native/mps/operations/Indexing.mm:
+  1025  
+  1026: REGISTER_DISPATCH(index_stub, &mps::index_kernel_mps);
+  1027: REGISTER_DISPATCH(index_put_stub, &mps::index_put_kernel_mps);
+  1028  } // namespace at::native
+
+pytorch • aten/src/ATen/native/quantized/FakeQuantPerChannelAffine.cpp:
+  13  
+  14: // Use REGISTER_DISPATCH to run CPU and CUDA backend.
+  15  DEFINE_DISPATCH(fake_quant_per_channel_cachemask_stub);
+
+pytorch • aten/src/ATen/native/quantized/FakeQuantPerTensorAffine.cpp:
+  11  
+  12: // Use REGISTER_DISPATCH to run CPU and CUDA backend.
+  13  DEFINE_DISPATCH(fake_quant_tensor_cachemask_stub);
+
+pytorch • aten/src/ATen/native/quantized/cpu/kernels/QuantizedOpKernels.cpp:
+  4289  #else
+  4290: REGISTER_DISPATCH(dequantize_tensor_per_channel_affine_stub,
+  4291                    &dequantize_tensor_per_channel_affine_cpu);
+  4292: REGISTER_DISPATCH(dequantize_tensor_per_tensor_affine_stub,
+  4293                    &dequantize_tensor_per_tensor_affine_cpu);
+  4294: REGISTER_DISPATCH(dequantize_tensor_per_channel_float_qparams_stub,
+  4295                    &dequantize_tensor_per_channel_float_qparams_cpu);
+  4296: REGISTER_DISPATCH(fake_quant_grad_learnable_tensor_stub,
+  4297                    &fake_quantize_learnable_tensor_grad_kernel_cpu);
+  4298: REGISTER_DISPATCH(fake_quant_per_channel_cachemask_stub, &fake_quant_per_channel_cachemask_cpu);
+  4299: REGISTER_DISPATCH(fake_quant_tensor_cachemask_stub,
+  4300                    &fake_quantize_tensor_cachemask_kernel);
+  4301: REGISTER_DISPATCH(fake_quant_tensor_cachemask_tensor_qparams_stub,
+  4302                    &fake_quantize_tensor_cachemask_tensor_qparams_kernel);
+  4303: REGISTER_DISPATCH(qadaptive_avg_pool2d_nhwc_stub,
+  4304                    &qadaptive_avg_pool2d_nhwc_kernel);
+  4305: REGISTER_DISPATCH(qadaptive_avg_pool3d_ndhwc_stub,
+  4306                    &qadaptive_avg_pool3d_ndhwc_kernel);
+  4307: REGISTER_DISPATCH(qadd_relu_stub, &qadd_kernel<true>);
+  4308: REGISTER_DISPATCH(qadd_scalar_relu_stub, &qadd_scalar_kernel<true>);
+  4309: REGISTER_DISPATCH(qadd_scalar_stub, &qadd_scalar_kernel<false>);
+  4310: REGISTER_DISPATCH(qadd_stub, &qadd_kernel<false>);
+  4311: REGISTER_DISPATCH(qavg_pool2d_nhwc_stub, &qavg_pool2d_nhwc_kernel);
+  4312: REGISTER_DISPATCH(qavg_pool3d_nhwc_stub, &qavg_pool3d_nhwc_kernel);
+  4313: REGISTER_DISPATCH(qbatch_norm_relu_stub, &q_batch_norm_kernel<true>);
+  4314: REGISTER_DISPATCH(qbatch_norm_stub, &q_batch_norm_kernel<false>);
+  4315: REGISTER_DISPATCH(qcat_nhwc_stub, &qcat_nhwc_kernel<false>);
+  4316: REGISTER_DISPATCH(qcat_relu_nhwc_stub, &qcat_nhwc_kernel<true>);
+  4317: REGISTER_DISPATCH(qclamp_stub, &qclamp_kernel);
+  4318: REGISTER_DISPATCH(qclamp_min_stub, &qclamp_min_kernel);
+  4319: REGISTER_DISPATCH(qclamp_max_stub, &qclamp_max_kernel);
+  4320: REGISTER_DISPATCH(qelu_stub, &qelu_kernel);
+  4321: REGISTER_DISPATCH(qhardsigmoid_stub, &qhardsigmoid_kernel);
+  4322: REGISTER_DISPATCH(qhardswish_stub, &qhardswish_kernel);
+  4323: REGISTER_DISPATCH(qmaxpool_2d_nhwc_stub, &qmaxpool_2d_nhwc_kernel);
+  4324: REGISTER_DISPATCH(qmaxpool_3d_nthwc_stub, &qmaxpool_3d_nthwc_kernel);
+  4325: REGISTER_DISPATCH(qmul_relu_stub, &qmul_kernel<true>);
+  4326: REGISTER_DISPATCH(qmul_stub, &qmul_kernel<false>);
+  4327: REGISTER_DISPATCH(qrelu_leaky_stub, &leaky_qrelu_out_kernel);
+  4328: REGISTER_DISPATCH(qrelu_stub, &qrelu_kernel);
+  4329: REGISTER_DISPATCH(qprelu_stub, &qprelu_out_kernel);
+  4330: REGISTER_DISPATCH(qgelu_stub, &qgelu_kernel);
+  4331: REGISTER_DISPATCH(qsigmoid_stub, &qsigmoid_kernel);
+  4332: REGISTER_DISPATCH(qtanh_stub, &qtanh_kernel);
+  4333: REGISTER_DISPATCH(qthreshold_stub, &qthreshold_kernel);
+  4334: REGISTER_DISPATCH(qtopk_stub, &qtopk_kernel);
+  4335: REGISTER_DISPATCH(fake_quant_grad_learnable_channel_stub,
+  4336                    &fake_quantize_learnable_channel_grad_kernel_cpu);
+  4337: REGISTER_DISPATCH(
+  4338      quantize_tensor_per_tensor_affine_stub,
+  4339      &quantize_tensor_per_tensor_affine_cpu);
+  4340: REGISTER_DISPATCH(
+  4341      quantize_tensor_per_channel_affine_stub,
+  4342      &quantize_tensor_per_channel_affine_cpu);
+  4343: REGISTER_DISPATCH(
+  4344      quantize_tensor_per_channel_float_qparams_stub,
+  4345      &quantize_tensor_per_channel_float_qparams_cpu);
+  4346: REGISTER_DISPATCH(quantized_normalize_stub, &quantized_normalize_kernel);
+  4347: REGISTER_DISPATCH(quantized_groupnorm_nhwc_stub, &quantized_groupnorm_nhwc_kernel);
+  4348: REGISTER_DISPATCH(qupsample_bilinear2d_nhwc_stub,
+  4349                    &qupsample_bilinear2d_nhwc_kernel);
+  4350: REGISTER_DISPATCH(
+  4351      quantize_tensor_per_tensor_affine_sub_byte_stub,
+  4352      &quantize_tensor_per_tensor_affine_sub_byte_cpu);
+  4353: REGISTER_DISPATCH(
+  4354      dequantize_tensor_per_tensor_affine_sub_byte_stub,
+  4355      &dequantize_tensor_per_tensor_affine_sub_byte_cpu);
+  4356: REGISTER_DISPATCH(
+  4357      masked_fill_kernel_quantized_stub,
+  4358      &masked_fill_kernel_quantized_cpu);
+  4359: REGISTER_DISPATCH(
+  4360      index_put_kernel_quantized_stub,
+  4361      &index_put_kernel_quantized_cpu);
+  4362: REGISTER_DISPATCH(qmean_inner_dim_stub, &qmean_inner_dim_kernel);
+  4363: REGISTER_DISPATCH(qstd_inner_dim_stub, &qstd_inner_dim_kernel);
+  4364  #endif // CPU_CAPABILITY_AVX512 && _WIN32
+
+pytorch • aten/src/ATen/native/quantized/cpu/kernels/README.md:
+   9    - All code in this file should go through the DECLARE_DISPATCH,
+  10:     DEFINE_DISPATCH, and REGISTER_DISPATCH mechanism to ensure the correct
+  11      runtime dispatch occurs.
+
+pytorch • aten/src/ATen/native/quantized/cuda/AffineQuantizer.cu:
+  251  
+  252: REGISTER_DISPATCH(
+  253      quantize_tensor_per_tensor_affine_stub,
+  254      &quantize_tensor_per_tensor_affine_cuda);
+  255: REGISTER_DISPATCH(
+  256      dequantize_tensor_per_tensor_affine_stub,
+  257      &dequantize_tensor_per_tensor_affine_cuda);
+  258: REGISTER_DISPATCH(
+  259      quantize_tensor_per_channel_affine_stub,
+  260      &quantize_tensor_per_channel_affine_cuda);
+  261: REGISTER_DISPATCH(
+  262      dequantize_tensor_per_channel_affine_stub,
+  263      &dequantize_tensor_per_channel_affine_cuda);
+  264: REGISTER_DISPATCH(
+  265      quantize_tensor_per_channel_float_qparams_stub,
+  266      &quantize_tensor_per_channel_float_qparams_cuda);
+  267: REGISTER_DISPATCH(
+  268      dequantize_tensor_per_channel_float_qparams_stub,
+
+pytorch • aten/src/ATen/native/quantized/cuda/FakeQuantizeCore.cu:
+  118  
+  119: REGISTER_DISPATCH(fake_quant_tensor_cachemask_stub, &fake_quantize_tensor_cachemask_kernel_cuda);
+  120: REGISTER_DISPATCH(fake_quant_tensor_cachemask_tensor_qparams_stub, &fake_quantize_tensor_cachemask_tensor_qparams_kernel_cuda);
+  121: REGISTER_DISPATCH(fake_quant_grad_learnable_tensor_stub, &_fake_quantize_grad_learnable_tensor_kernel_cuda);
+  122  
+
+  212  
+  213: REGISTER_DISPATCH(fake_quant_per_channel_cachemask_stub, &fake_quant_per_channel_cachemask_cuda);
+  214: REGISTER_DISPATCH(fake_quant_grad_learnable_channel_stub, &_fake_quantize_grad_learnable_channel_kernel_cuda);
+  215  

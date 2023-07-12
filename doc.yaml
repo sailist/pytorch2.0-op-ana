@@ -1,0 +1,140 @@
+- _adaptive_avg_pool2d:
+  desc: adaptive_avg_pool2d
+  other:
+    - /home/haozhe/code/pytorch/aten/src/ATen/native/mkldnn/Pooling.cpp:96:Tensor mkldnn_adaptive_avg_pool2d(Tensor const& input, IntArrayRef output_size) {
+    - /home/haozhe/code/pytorch/aten/src/ATen/native/mkldnn/Pooling.cpp:487:Tensor mkldnn_adaptive_avg_pool2d(
+    - /home/haozhe/code/pytorch/aten/src/ATen/native/quantized/cpu/AdaptiveAveragePooling.cpp:254:Tensor q_adaptive_avg_pool2d(const Tensor& input, IntArrayRef output_size) {
+    - /home/haozhe/code/pytorch/aten/src/ATen/native/quantized/cpu/AdaptiveAveragePooling.cpp:266:Tensor qnnpack_adaptive_avg_pool2d(
+  cpu:
+    - "/home/haozhe/code/pytorch/aten/src/ATen/native/AdaptiveAveragePooling.cpp:100: Tensor adaptive_avg_pool2d_cpu("
+  cuda:
+    - /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AdaptiveAveragePooling.cu:765:Tensor adaptive_avg_pool2d_cuda(
+
+- _adaptive_avg_pool2d_backward:
+  desc: adaptive_avg_pool2d_backward
+  other:
+    - /home/haozhe/code/pytorch/aten/src/ATen/native/mkldnn/Pooling.cpp:184:Tensor mkldnn_adaptive_avg_pool2d_backward(
+    - /home/haozhe/code/pytorch/aten/src/ATen/native/mkldnn/Pooling.cpp:642:Tensor mkldnn_adaptive_avg_pool2d_backward(
+  cpu:
+    - "/home/haozhe/code/pytorch/aten/src/ATen/native/AdaptiveAveragePooling.cpp:143: Tensor adaptive_avg_pool2d_backward_cpu("
+    - "/home/haozhe/code/pytorch/aten/src/ATen/native/AdaptiveAveragePooling.cpp:62:  Tensor& adaptive_avg_pool2d_backward_out_cpu_template("
+  cuda:
+    - "/home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AdaptiveAveragePooling.cu:791: Tensor adaptive_avg_pool2d_backward_cuda("
+
+- _log_softmax:
+  desc: log_softmax
+  cpu:
+  - "/home/haozhe/code/pytorch/aten/src/ATen/native/cpu/SoftMaxKernel.cpp:1292:REGISTER_DISPATCH(log_softmax_kernel, &log_softmax_kernel_impl);"
+  cuda:
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/SoftMax.cu:929:TORCH_IMPL_FUNC(log_softmax_cuda_out) (
+
+- _to_copy:
+  desc: 从 a 复制到 b
+  entry: /home/haozhe/code/pytorch/aten/src/ATen/native/TensorConversions.cpp:225
+  cpu: 
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/BlasKernel.cpp:327:REGISTER_DISPATCH(cpublas::copy_stub, &cpublas::cpublas_copy_impl);
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/BlasKernel.cpp:311:void cpublas_copy_impl(at::ScalarType type, int64_t n, const void *_x, int64_t incx, void *_y, int64_t incy)
+  cuda:
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Copy.cu:270:REGISTER_DISPATCH(copy_stub, &copy_kernel_cuda);
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Copy.cu:165:static void copy_kernel_cuda(TensorIterator& iter, bool non_blocking) {
+  nested: /home/haozhe/code/pytorch/aten/src/ATen/native/nested/NestedTensorFactories.cpp:84
+
+- abs:
+  desc: 绝对值
+  cpu: 
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/ForeachOpsKernels.cpp:282
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:736:REGISTER_DISPATCH(abs_stub, &CPU_CAPABILITY::abs_kernel);
+  cuda: 
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AbsKernel.cu
+  - "/home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AbsKernel.cu:  REGISTER_DISPATCH(abs_stub, &abs_kernel_cuda);"
+
+- acos:
+  desc: 三角函数
+  cpu: 
+  - /home/haozhe/code/pytorch/aten/src/ATen/cpu/vml.h:IMPLEMENT_VML(acos)
+  cuda: 
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAcosKernel.cu:56:REGISTER_DISPATCH(acos_stub, &acos_kernel_cuda);
+
+- acosh:
+  desc: 三角函数
+  cpu: 
+  - "/home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:372:static void acosh_kernel(TensorIteratorBase& iter) {"
+  cuda:
+  - "/home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAcoshKernel.cu:19:void acosh_kernel_cuda(TensorIteratorBase& iter) {"
+
+- add.Scalar:
+  cpu:
+  - "/home/haozhe/code/pytorch/aten/src/ATen/native/cpu/PaddingKernel.cpp:115:static inline void add_stub(scalar_t* grad_in, const scalar_t* grad_out, int64_t size) {" 
+  cuda:
+  - /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ForeachBinaryOpScalar.cu:166:FOREACH_BINARY_OP_SCALAR(
+  - "/home/haozhe/code/pytorch/aten/src/ATen/native/transformers/cuda/flash_attn/gemm.h:128:    inline __device__ void add(const Fragment &other) {"
+
+- add.Tensor:
+  cpu: 
+  - "/home/haozhe/code/pytorch/aten/src/ATen/native/mkldnn/BinaryOps.cpp:101:Tensor mkldnn_add(const Tensor& self, const Tensor& other, const Scalar& alpha) {"
+  - "/home/haozhe/code/pytorch/build_libtorch/build/aten/src/ATen/Operators_2.cpp:969:    static auto op = create_add_Tensor_typed_handle();"
+  
+- addmm:
+  desc: \beta\ mat + \alpha\ (mat1_i \mathbin{@} mat2_i)
+  cpu: "/home/haozhe/code/pytorch/aten/src/ATen/functorch/BatchRulesLinearAlgebra.cpp:166:return at::add(self * beta, at::mm(mat1, mat2), alpha);"
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Blas.cpp:149:Tensor& addmm_out_cuda_impl(Tensor& result, const Tensor& self, const Tensor& mat1, const Tensor& mat2, const Scalar& beta, const Scalar& alpha, Activation activation=Activation::None) {"
+
+- alias:
+  desc: 创建一个 tensor 的别名（引用），创建后共享同一块内存空间
+  cpu: /home/haozhe/code/pytorch/aten/src/ATen/native/TensorShape.cpp:1545:Tensor alias_with_sizes_and_strides(
+
+
+- amax: 
+  desc: alias to argmax
+  cpu: not found
+
+- amin: 
+  desc: alias to argmin 
+  cpu: not found
+
+- arange:
+  cpu: /home/haozhe/code/pytorch/aten/src/ATen/native/RangeFactories.cpp:159:Tensor& arange_out(const Scalar& start, const Scalar& end, const Scalar& step, Tensor& result) {
+
+- argmax:
+  cpu: "/home/haozhe/code/pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:401:static void argmax_kernel_impl(TensorIterator &iter) {"
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ReduceArgMaxKernel.cu:21:void argmax_kernel_cuda_impl(TensorIterator& iter) {"
+
+- argmin: 
+  cpu: "/home/haozhe/code/pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:425:static void argmin_kernel_impl(TensorIterator &iter) {"
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ReduceArgMinKernel.cu:21:void argmin_kernel_cuda_impl(TensorIterator& iter) {"
+
+- as_strided:
+  cpu: "/home/haozhe/code/pytorch/aten/src/ATen/native/TensorShape.cpp:1140:Tensor as_strided_tensorimpl(const Tensor& self, IntArrayRef size, IntArrayRef stride, optional<int64_t> storage_offset_) {"
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/native/TensorShape.cpp:1140:Tensor as_strided_tensorimpl(const Tensor& self, IntArrayRef size, IntArrayRef stride, optional<int64_t> storage_offset_) {"
+
+- asin:
+  desc: 数学函数
+  cpu: "/home/haozhe/code/pytorch/aten/src/ATen/cpu/vec/vec256/vec256_float_neon.h:343:Vectorized<float> asin() const {"
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/cuda/llvm_basic.cpp:190:using ::asin;"
+
+- asinh:
+  desc: 数学函数
+  cpu: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:380:static void asinh_kernel(TensorIteratorBase& iter) {
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/cuda/llvm_basic.cpp:245:using ::asinh;"
+
+- atan:
+  desc: 数学函数
+  cpu: "/home/haozhe/code/pytorch/aten/src/ATen/cpu/vec/vec256/vsx/vec256_float_vsx.h:264:Vectorized<float> atan() const {"
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/cuda/llvm_basic.cpp:192:using ::atan;"
+
+- atanh:
+  desc: 数学函数
+  cpu: "/home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:388:static void atanh_kernel(TensorIteratorBase& iter) {"
+  cuda: "/home/haozhe/code/pytorch/aten/src/ATen/cuda/llvm_basic.cpp:247:using ::atanh;"
+
+- avg_pool2d:
+  desc: avg_pool2d
+  cpu: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/AvgPoolKernel.cpp:491:void avg_pool2d_kernel_impl(
+  cuda: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AveragePool2d.cu:243:TORCH_IMPL_FUNC(avg_pool2d_out_cuda)
+
+- avg_pool2d_backward:
+  desc: avg_pool2d_backward
+  cpu: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/AvgPoolKernel.cpp:521:void avg_pool2d_backward_kernel_impl(
+  cuda: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AveragePool2d.cu:357:TORCH_IMPL_FUNC(avg_pool2d_backward_out_cuda) (
+
+- 
