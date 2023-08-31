@@ -1,4 +1,7 @@
 from aten_gen import *
+from torch import _prims
+
+_prims.abs
 
 
 def run_PY_adaptive_avg_pool2d():
@@ -32,7 +35,14 @@ run_PY_log_softmax()
 
 
 def run_PY_native_batch_norm_legit_no_stats():
-    PY_native_batch_norm_legit_no_stats
+    PY_native_batch_norm_legit_no_stats(
+        torch.rand(3, 4, 12, 12),
+        weight=torch.rand(4, 12, 12),
+        bias=torch.rand(4, 12, 12),
+        training=False,
+        momentum=0.9,
+        eps=1e-6,
+    )
 
 
 run_PY_native_batch_norm_legit_no_stats()
@@ -309,13 +319,13 @@ def run_PYconvolution():
     PYconvolution(
         torch.rand(6, 9, 10, 10),
         torch.rand(6, 3, 5, 5),
-        None,
-        [1],
-        [0, 0],
-        [1, 1],
-        False,
-        [0, 0],
-        3,
+        bias=None,
+        stride=[1],
+        padding=[0, 0],
+        dilation=[1, 1],
+        transposed=False,
+        output_padding=[0, 0],
+        groups=3,
     )
 
 

@@ -1,4 +1,5 @@
 from torch import Tensor, device, dtype, layout, memory_format
+from pseudo import *
 from torch.nn import functional as F
 from torch.autograd import grad, Variable
 import torch
@@ -29,7 +30,7 @@ def PY_adaptive_avg_pool2d(self: Tensor, output_size: SymInt2) -> Tensor:
     _adaptive_avg_pool2d
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/AdaptiveAvgPoolKernel.cpp:364
+        CPU: pytorch/aten/src/ATen/native/cpu/AdaptiveAvgPoolKernel.cpp:364
             adaptive_avg_pool2d_kernel -> adaptive_avg_pool2d_kernel_impl
             void adaptive_avg_pool2d_kernel_impl(
                 Tensor& output,
@@ -57,7 +58,7 @@ def PY_adaptive_avg_pool2d(self: Tensor, output_size: SymInt2) -> Tensor:
                 }
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AdaptiveAveragePooling.cu:440
+        CUDA: pytorch/aten/src/ATen/native/cuda/AdaptiveAveragePooling.cu:440
             void adaptive_avg_pool2d_out_cuda_template(
                 Tensor& output,
                 const Tensor& input,
@@ -70,6 +71,13 @@ def PY_adaptive_avg_pool2d(self: Tensor, output_size: SymInt2) -> Tensor:
     Returns:
         Tensor:
     """
+    memory_format = get_memory_format(input)
+    if memory_format == torch.contiguous_format:
+        # cpu_adaptive_avg_pool
+        pass
+    elif memory_format == torch.channels_last:
+        # cpu_adaptive_avg_pool_channels_last
+        pass
     return torch._adaptive_avg_pool2d(self, output_size)
 
 
@@ -82,7 +90,7 @@ def PY_adaptive_avg_pool2d_backward(grad_output: Tensor, self: Tensor) -> Tensor
     ```
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/AdaptiveAveragePooling.cpp:143
+        CPU: pytorch/aten/src/ATen/native/AdaptiveAveragePooling.cpp:143
             Tensor adaptive_avg_pool2d_backward_cpu(
                 const Tensor& grad_output,
                 const Tensor& input)
@@ -93,13 +101,13 @@ def PY_adaptive_avg_pool2d_backward(grad_output: Tensor, self: Tensor) -> Tensor
                 return grad_input;
             }
 
-            /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/AdaptiveAvgPoolKernel.cpp:390
+            pytorch/aten/src/ATen/native/cpu/AdaptiveAvgPoolKernel.cpp:390
             # 具体算法
             void adapative_avg_pool2d_backward_kernel_impl(
                 Tensor& grad_input,
                 const Tensor& grad_output) {
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AdaptiveAveragePooling.cu:791
+        CUDA: pytorch/aten/src/ATen/native/cuda/AdaptiveAveragePooling.cu:791
           Tensor adaptive_avg_pool2d_backward_cuda(
                 const Tensor& gradOutput,
                 const Tensor& input)
@@ -119,7 +127,7 @@ def PY_log_softmax(self: Tensor, dim: int, half_to_float: bool) -> Tensor:
     _log_softmax
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/SoftMax.cpp:364
+        CPU: pytorch/aten/src/ATen/native/SoftMax.cpp:364
             TORCH_IMPL_FUNC(log_softmax_cpu_out)
                 if (input_.ndimension() > 0 && dim_ == input_.ndimension() - 1) {
                     log_softmax_lastdim_kernel(kCPU, output, input_);
@@ -133,7 +141,7 @@ def PY_log_softmax(self: Tensor, dim: int, half_to_float: bool) -> Tensor:
                     [&] { vec_softmax<scalar_t, true>::apply(result, self, dim); });
                 }
 
-            /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/SoftMaxKernel.cpp:1118
+            pytorch/aten/src/ATen/native/cpu/SoftMaxKernel.cpp:1118
                 template <typename scalar_t, bool LogSoftMax>
                 struct vec_softmax {
                     static void apply(const Tensor& output, const Tensor& input, int64_t dim) {
@@ -155,7 +163,7 @@ def PY_log_softmax(self: Tensor, dim: int, half_to_float: bool) -> Tensor:
                     }
                 };
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/SoftMax.cu:929
+        CUDA: pytorch/aten/src/ATen/native/cuda/SoftMax.cu:929
             TORCH_IMPL_FUNC(log_softmax_cuda_out) (
             const Tensor &input,
             const int64_t dim,
@@ -174,7 +182,13 @@ def PY_log_softmax(self: Tensor, dim: int, half_to_float: bool) -> Tensor:
     Returns:
         Tensor:
     """
-    return torch._log_softmax(self, dim, half_to_float)
+    if half_to_float:
+        assert self.type == torch.float16
+    c = self.amax(dim=dim,keepdim=True)
+    # https://stackoverflow.com/questions/61567597/how-is-log-softmax-implemented-to-compute-its-value-and-gradient-with-better
+    logsumexp = torch.log(torch.exp(self - c).sum(dim=dim, keepdim=True))
+    return self - c - logsumexp
+    # return torch._log_softmax(self, dim, half_to_float)
 
 
 def PY_native_batch_norm_legit_no_stats(
@@ -189,7 +203,7 @@ def PY_native_batch_norm_legit_no_stats(
     没有 running_mean 和 running_std 的 batch_norm
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/Normalization.cpp:804
+        CPU: pytorch/aten/src/ATen/native/Normalization.cpp:804
             std::tuple<Tensor, Tensor, Tensor> _batch_norm_legit_no_stats_cpu(
                 const Tensor& self,
                 const c10::optional<Tensor>& weight_opt,
@@ -198,7 +212,7 @@ def PY_native_batch_norm_legit_no_stats(
             return batch_norm_cpu(self, weight_opt, bias_opt, Tensor(), Tensor(), train, momentum, eps);
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Normalization.cu:480
+        CUDA: pytorch/aten/src/ATen/native/cuda/Normalization.cu:480
             std::tuple<Tensor, Tensor, Tensor> _batch_norm_legit_no_stats_cuda(
                 const Tensor& self,
                 const c10::optional<Tensor>& weight_opt,
@@ -228,14 +242,14 @@ def PY_softmax(self: Tensor, dim: int, half_to_float: bool) -> Tensor:
     _softmax
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/SoftMaxKernel.cpp:1205
+        CPU: pytorch/aten/src/ATen/native/cpu/SoftMaxKernel.cpp:1205
             static void softmax_kernel_impl(const Tensor& result, const Tensor& self, int64_t dim) {
             AT_DISPATCH_FLOATING_TYPES_AND(at::ScalarType::BFloat16, self.scalar_type(),
                 "softmax_kernel_impl",
                 [&] { vec_softmax<scalar_t, false>::apply(result, self, dim); });
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/SoftMax.cu:953
+        CUDA: pytorch/aten/src/ATen/native/cuda/SoftMax.cu:953
             TORCH_IMPL_FUNC(softmax_cuda_out) (
             const Tensor &input,
             const int64_t dim,
@@ -271,7 +285,7 @@ def PY_to_copy(
 
     Sources:
 
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/BlasKernel.cpp:327
+        CPU: pytorch/aten/src/ATen/native/cpu/BlasKernel.cpp:327
             REGISTER_DISPATCH(cpublas::copy_stub, &cpublas::cpublas_copy_impl);
 
             void cpublas_copy_impl(at::ScalarType type, int64_t n, const void *_x, int64_t incx, void *_y, int64_t incy){
@@ -285,12 +299,12 @@ def PY_to_copy(
                     });
             }
 
-            /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/CopyKernel.cpp
+            pytorch/aten/src/ATen/native/cpu/CopyKernel.cpp
                 REGISTER_DISPATCH(copy_stub, &copy_kernel);
                 void copy_kernel(TensorIterator& iter, bool /*non_blocking*/)
 
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Copy.cu:165
+        CUDA: pytorch/aten/src/ATen/native/cuda/Copy.cu:165
             REGISTER_DISPATCH(copy_stub, &copy_kernel_cuda);
             static void copy_kernel_cuda(TensorIterator& iter, bool non_blocking)
 
@@ -315,7 +329,7 @@ def PYabs(self: Tensor) -> Tensor:
     abs
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:182
+        CPU: pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:182
             static void abs_kernel(TensorIteratorBase& iter) {
                 auto dtype = iter.dtype();
                 if (dtype == kComplexHalf) {
@@ -332,11 +346,11 @@ def PYabs(self: Tensor) -> Tensor:
                 }
             }
 
-            /home/haozhe/code/pytorch/aten/src/ATen/native/ForeachOpsKernels.cpp:282
+            pytorch/aten/src/ATen/native/ForeachOpsKernels.cpp:282
             FOREACH_UNARY_OP(abs);
 
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AbsKernel.cu:19
+        CUDA: pytorch/aten/src/ATen/native/cuda/AbsKernel.cu:19
             void abs_kernel_cuda(TensorIteratorBase& iter)
 
     Args:
@@ -353,10 +367,10 @@ def PYacos(self: Tensor) -> Tensor:
     数学函数
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/cpu/vml.h:67
+        CPU: pytorch/aten/src/ATen/cpu/vml.h:67
             IMPLEMENT_VML(acos)
 
-            /home/haozhe/code/pytorch/torch/include/c10/util/complex_math.h:201
+            pytorch/torch/include/c10/util/complex_math.h:201
             template <typename T>
             C10_HOST_DEVICE inline c10::complex<T> acos(const c10::complex<T>& x) {
             #if defined(__CUDACC__) || defined(__HIPCC__)
@@ -370,7 +384,7 @@ def PYacos(self: Tensor) -> Tensor:
             #endif
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAcosKernel.cu:56
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricAcosKernel.cu:56
             REGISTER_DISPATCH(acos_stub, &acos_kernel_cuda);
             void acos_kernel_cuda(TensorIteratorBase& iter) {
                 auto common_dtype = iter.common_dtype();
@@ -425,7 +439,7 @@ def PYacosh(self: Tensor) -> Tensor:
     数学函数 acosh
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:372
+        CPU: pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:372
             static void acosh_kernel(TensorIteratorBase& iter) {
                 AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(kBFloat16, kHalf, iter.dtype(), "acosh_cpu", [&]() {
                 cpu_kernel(
@@ -434,7 +448,7 @@ def PYacosh(self: Tensor) -> Tensor:
                 });
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAcoshKernel.cu:19
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricAcoshKernel.cu:19
             similar to acos
 
     Args:
@@ -451,7 +465,7 @@ def PYadd_Scalar(self: Tensor, other: Scalar, alpha: Scalar) -> Tensor:
     For C++ only, until we have conversion from C++ numbers to Tensor
 
     Sources:
-        ALL?: /home/haozhe/code/pytorch/aten/src/ATen/native/ufunc/add.h
+        ALL?: pytorch/aten/src/ATen/native/ufunc/add.h
             template <typename T>
                 C10_HOST_DEVICE C10_ALWAYS_INLINE T add(T self, T other, T alpha) __ubsan_ignore_undefined__ {
                 return self + alpha * other;
@@ -474,27 +488,27 @@ def PYadd_Tensor(self: Tensor, other: Tensor, alpha: Scalar) -> Tensor:
     https://zhuanlan.zhihu.com/p/574166920 介绍了 dispatcher 分派的过程
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/ufunc/add.h
+        CPU: pytorch/aten/src/ATen/native/ufunc/add.h
             template <typename T>
                 C10_HOST_DEVICE C10_ALWAYS_INLINE T add(T self, T other, T alpha) __ubsan_ignore_undefined__ {
                 return self + alpha * other;
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ForeachBinaryOpScalarList.cu:167
+        CUDA: pytorch/aten/src/ATen/native/cuda/ForeachBinaryOpScalarList.cu:167
                 FOREACH_BINARY_OP_SCALARLIST(
                     all_types_complex_bool_half_bfloat16,
                     add,
                     std::plus,
                     /*div_op*/ false);
 
-            /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ForeachBinaryOpScalar.cu:164
+            pytorch/aten/src/ATen/native/cuda/ForeachBinaryOpScalar.cu:164
                 FOREACH_BINARY_OP_SCALAR(
                     all_types_complex_bool_half_bfloat16,
                     add,
                     std::plus,
                     /*div_op*/ false);
 
-            /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ForeachBinaryOpList.cu：215
+            pytorch/aten/src/ATen/native/cuda/ForeachBinaryOpList.cu：215
                 FOREACH_BINARY_OP_LIST_ALPHA(
                     all_types_complex_bool_half_bfloat16,
                     add,
@@ -519,14 +533,14 @@ def PYaddmm(
     beta * mat + alpha (mat1_i @ mat2_i)
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/functorch/BatchRulesLinearAlgebra.cpp:164
+        CPU: pytorch/aten/src/ATen/functorch/BatchRulesLinearAlgebra.cpp:164
             Tensor addmm_decomp(const Tensor& self, const Tensor& mat1, const Tensor& mat2, const Scalar& beta, const Scalar& alpha) {
                 // Decomposition that is probably not very fast...
                 return at::add(self * beta, at::mm(mat1, mat2), alpha);
             }
             m.impl("addmm", addmm_decomp);
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Blas.cpp:149
+        CUDA: pytorch/aten/src/ATen/native/cuda/Blas.cpp:149
             Tensor& addmm_out_cuda_impl(
                 Tensor& result,
                 const Tensor& self,
@@ -554,7 +568,7 @@ def PYalias(self: AliasTensor) -> AliasTensor:
     创建一个 tensor 的别名（引用），创建后共享同一块内存空间
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/TensorShape.cpp:1545
+        ALL: pytorch/aten/src/ATen/native/TensorShape.cpp:1545
             template <typename Vec>
             Tensor alias_with_sizes_and_strides(
                 const Tensor& self,
@@ -575,7 +589,7 @@ def PYamax(self: Tensor, dim: Int1, keepdim: bool) -> Tensor:
     Returns the maximum value of each slice of the input tensor in the given dimension(s) dim.
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/ReduceOps.cpp:1555
+        ALL: pytorch/aten/src/ATen/native/ReduceOps.cpp:1555
             TORCH_IMPL_FUNC(amax_out) (const Tensor& self, IntArrayRef dim, bool keepdim, const Tensor& result) {
             auto iter =
                 meta::make_reduction(self, result, dim, keepdim, self.scalar_type());
@@ -583,7 +597,7 @@ def PYamax(self: Tensor, dim: Int1, keepdim: bool) -> Tensor:
                 max_values_stub(iter.device_type(), iter);
             }
             }
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:391
+        CPU: pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:391
             static void max_values_kernel_impl(TensorIterator& iter) {
             AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.dtype(), "max_values_cpu", [&iter] {
                 binary_kernel_reduce_vec(
@@ -593,7 +607,7 @@ def PYamax(self: Tensor, dim: Int1, keepdim: bool) -> Tensor:
                 lower_bound<scalar_t>());
             });
             }
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ReduceMaxValuesKernel.cu:59
+        CUDA: pytorch/aten/src/ATen/native/cuda/ReduceMaxValuesKernel.cu:59
             REGISTER_DISPATCH(max_values_stub, &max_values_kernel_cuda);
             void max_values_kernel_cuda(TensorIterator& iter) {
             AT_DISPATCH_ALL_TYPES_AND3(
@@ -620,7 +634,7 @@ def PYamin(self: Tensor, dim: Int1, keepdim: bool) -> Tensor:
 
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/ReduceOps.cpp:15
+        ALL: pytorch/aten/src/ATen/native/ReduceOps.cpp:15
             TORCH_IMPL_FUNC(amin_out) (const Tensor& self, IntArrayRef dim, bool keepdim, const Tensor& result) {
             auto iter =
                 meta::make_reduction(self, result, dim, keepdim, self.scalar_type());
@@ -629,11 +643,11 @@ def PYamin(self: Tensor, dim: Int1, keepdim: bool) -> Tensor:
             }
             }
 
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:457
+        CPU: pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:457
             REGISTER_DISPATCH(min_values_stub, &min_values_kernel_impl);
             static void min_values_kernel_impl(TensorIterator& iter)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ReduceMinValuesKernel.cu:46
+        CUDA: pytorch/aten/src/ATen/native/cuda/ReduceMinValuesKernel.cu:46
             REGISTER_DISPATCH(min_values_stub, &min_values_kernel_cuda);
             void min_values_kernel_cuda(TensorIterator& iter) {
             AT_DISPATCH_ALL_TYPES_AND3(kBFloat16, kHalf, kBool, iter.dtype(), "min_values_cuda", [&]() {
@@ -665,7 +679,7 @@ def PYarange_start_step(
     arange
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/RangeFactories.cpp:159
+        ALL: pytorch/aten/src/ATen/native/RangeFactories.cpp:159
             Tensor& arange_out(
                 const Scalar& start,
                 const Scalar& end,
@@ -700,10 +714,10 @@ def PYargmax(self: Tensor, dim: Optional[int], keepdim: bool) -> Tensor:
     argmax
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:401
+        CPU: pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:401
             static void argmax_kernel_impl(TensorIterator &iter)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ReduceArgMaxKernel.cu:21
+        CUDA: pytorch/aten/src/ATen/native/cuda/ReduceArgMaxKernel.cu:21
             template <typename scalar_t, typename acc_t = scalar_t>
                 void argmax_kernel_cuda_impl(TensorIterator& iter)
 
@@ -723,10 +737,10 @@ def PYargmin(self: Tensor, dim: Optional[int], keepdim: bool) -> Tensor:
     argmin
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:425
+        CPU: pytorch/aten/src/ATen/native/cpu/ReduceOpsKernel.cpp:425
             static void argmin_kernel_impl(TensorIterator &iter)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ReduceArgMinKernel.cu:21
+        CUDA: pytorch/aten/src/ATen/native/cuda/ReduceArgMinKernel.cu:21
             template <typename scalar_t, typename acc_t = scalar_t>
                 void argmin_kernel_cuda_impl(TensorIterator& iter)
 
@@ -751,7 +765,7 @@ def PYas_strided(
     按照 stride 的方式，填满 size 对应的 Tensor 大小
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/TensorShape.cpp:1140
+        ALL: pytorch/aten/src/ATen/native/TensorShape.cpp:1140
             Tensor as_strided_tensorimpl(const Tensor& self, IntArrayRef size, IntArrayRef stride, optional<int64_t> storage_offset_) {
                 TORCH_INTERNAL_ASSERT(!self.is_mps(), "as_strided_tensorimpl does not work with MPS; call self.as_strided(...) instead");
                 auto storage_offset = storage_offset_.value_or(self.storage_offset());
@@ -778,10 +792,10 @@ def PYasin(self: Tensor) -> Tensor:
     数学函数 asin
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/cpu/vml.h:68
+        CPU: pytorch/aten/src/ATen/cpu/vml.h:68
             IMPLEMENT_VML(asin)
 
-            /home/haozhe/code/pytorch/torch/include/c10/util/complex_math.h:190
+            pytorch/torch/include/c10/util/complex_math.h:190
             template <typename T>
             C10_HOST_DEVICE inline c10::complex<T> asin(const c10::complex<T>& x) {
             #if defined(__CUDACC__) || defined(__HIPCC__)
@@ -794,7 +808,7 @@ def PYasin(self: Tensor) -> Tensor:
             }
 
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAsinKernel.cu:
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricAsinKernel.cu:
             void asin_kernel_cuda(TensorIteratorBase& iter)
 
     Args:
@@ -811,7 +825,7 @@ def PYasinh(self: Tensor) -> Tensor:
     数学函数 asinh
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:380
+        CPU: pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:380
             static void asinh_kernel(TensorIteratorBase& iter) {
                 AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(kBFloat16, kHalf, iter.dtype(), "asinh_cpu", [&]() {
                 cpu_kernel(
@@ -820,7 +834,7 @@ def PYasinh(self: Tensor) -> Tensor:
                 });
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAsinhKernel.cu:19
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricAsinhKernel.cu:19
             similar to acos
 
     Args:
@@ -837,10 +851,10 @@ def PYatan(self: Tensor) -> Tensor:
     数学函数 atan
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/cpu/vml.h:69
+        CPU: pytorch/aten/src/ATen/cpu/vml.h:69
             IMPLEMENT_VML(atan)
 
-            /home/haozhe/code/pytorch/torch/include/c10/util/complex_math.h:213
+            pytorch/torch/include/c10/util/complex_math.h:213
             template <typename T>
             C10_HOST_DEVICE inline c10::complex<T> atan(const c10::complex<T>& x) {
             #if defined(__CUDACC__) || defined(__HIPCC__)
@@ -853,7 +867,7 @@ def PYatan(self: Tensor) -> Tensor:
             }
 
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAtanKernel.cu
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricAtanKernel.cu
             similar to acos
 
     Args:
@@ -870,7 +884,7 @@ def PYatanh(self: Tensor) -> Tensor:
     数学函数 atanh
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:388
+        CPU: pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:388
             static void atanh_kernel(TensorIteratorBase& iter) {
                 AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(kBFloat16, kHalf, iter.dtype(), "atanh_cpu", [&]() {
                 cpu_kernel(
@@ -879,7 +893,7 @@ def PYatanh(self: Tensor) -> Tensor:
                 });
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricAtanhKernel.cu
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricAtanhKernel.cu
             similar to acos
 
     Args:
@@ -904,7 +918,7 @@ def PYavg_pool2d(
     avg_pool2d
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/AvgPoolKernel.cpp:491
+        CPU: pytorch/aten/src/ATen/native/cpu/AvgPoolKernel.cpp:491
             void avg_pool2d_kernel_impl(
                 const Tensor& output,
                 const Tensor& input,
@@ -914,7 +928,7 @@ def PYavg_pool2d(
                 bool count_include_pad,
                 c10::optional<int64_t> divisor_override)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AveragePool2d.cu:243
+        CUDA: pytorch/aten/src/ATen/native/cuda/AveragePool2d.cu:243
             TORCH_IMPL_FUNC(avg_pool2d_out_cuda)
                 (const Tensor& input_,
                 int64_t kH_,
@@ -934,7 +948,7 @@ def PYavg_pool2d(
         stride (Int2):
         padding (Int2):
         ceil_mode (bool): ceil 函数计算的方式，不参与 pool 计算，仅用于 output wh 的计算
-            /home/haozhe/code/pytorch/torch/include/ATen/native/Pool.h:42
+            pytorch/torch/include/ATen/native/Pool.h:42
             template<typename T>
             static inline T pooling_output_shape_pad_lr(
                     T inputSize, T kernelSize, T pad_l, T pad_r, T stride, T dilation,
@@ -985,7 +999,7 @@ def PYavg_pool2d_backward(
     avg_pool2d_backward
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/AvgPoolKernel.cpp:521
+        CPU: pytorch/aten/src/ATen/native/cpu/AvgPoolKernel.cpp:521
             void avg_pool2d_backward_kernel_impl(
                 const Tensor& grad_input,
                 const Tensor& grad_output,
@@ -995,7 +1009,7 @@ def PYavg_pool2d_backward(
                 bool count_include_pad,
                 c10::optional<int64_t> divisor_override)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/AveragePool2d.cu:357
+        CUDA: pytorch/aten/src/ATen/native/cuda/AveragePool2d.cu:357
             TORCH_IMPL_FUNC(avg_pool2d_backward_out_cuda) (
             const Tensor& gradOutput_,
             const Tensor& input_,
@@ -1029,11 +1043,11 @@ def PYbitwise_and_Tensor(self: Tensor, other: Tensor) -> Tensor:
     并行的 and 操作
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:281
+        CPU: pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:281
             void bitwise_and_kernel(TensorIteratorBase& iter)
             REGISTER_DISPATCH(bitwise_and_stub, &bitwise_and_kernel);
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/BinaryBitwiseOpsKernels.cu:27
+        CUDA: pytorch/aten/src/ATen/native/cuda/BinaryBitwiseOpsKernels.cu:27
             void bitwise_and_kernel_cuda(TensorIteratorBase& iter) {
             AT_DISPATCH_INTEGRAL_TYPES_AND(kBool, iter.dtype(), "bitwise_and_cuda", [&]() {
                 BitwiseAndFunctor<scalar_t> f;
@@ -1056,10 +1070,10 @@ def PYbitwise_not(self: Tensor) -> Tensor:
     并行的 not 操作
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:223
+        CPU: pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:223
             similar to bitwise_and
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryOpsKernel.cu:23
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryOpsKernel.cu:23
             similar to bitwise_and
 
     Args:
@@ -1076,10 +1090,10 @@ def PYbitwise_or_Tensor(self: Tensor, other: Tensor) -> Tensor:
     并行的 or 操作
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:302
+        CPU: pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:302
             similar to bitwise_and
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryOpsKernel.cu:48
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryOpsKernel.cu:48
             similar to bitwise_and
 
     Args:
@@ -1097,10 +1111,10 @@ def PYbitwise_xor_Tensor(self: Tensor, other: Tensor) -> Tensor:
     并行的 xor 操作
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:323
+        CPU: pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:323
             similar to bitwise_and
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/BinaryBitwiseOpsKernels.cu:69
+        CUDA: pytorch/aten/src/ATen/native/cuda/BinaryBitwiseOpsKernels.cu:69
             similar to bitwise_and
 
     Args:
@@ -1118,7 +1132,7 @@ def PYbmm(self: Tensor, mat2: Tensor) -> Tensor:
     batched matmul
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/functorch/BatchRulesLinearAlgebra.cpp:600
+        CPU: pytorch/aten/src/ATen/functorch/BatchRulesLinearAlgebra.cpp:600
             VMAP_SUPPORT(bmm, bmm_batch_rule);
             static std::tuple<Tensor, optional<int64_t>> bmm_batch_rule(
                 const Tensor& self, optional<int64_t> self_bdim,
@@ -1134,7 +1148,7 @@ def PYbmm(self: Tensor, mat2: Tensor) -> Tensor:
             auto other_ = moveBatchDimToFront(other, other_bdim);
             return std::make_tuple( at::matmul(self_, other_), 0 );
             }
-            /home/haozhe/code/pytorch/aten/src/ATen/native/LinearAlgebra.cpp:1649
+            pytorch/aten/src/ATen/native/LinearAlgebra.cpp:1649
                 static inline void bmm_out_or_baddbmm_(
                     const Tensor& self_or_result_,
                     const Tensor& batch1,
@@ -1144,7 +1158,7 @@ def PYbmm(self: Tensor, mat2: Tensor) -> Tensor:
                     bool is_bmm_out)
 
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Blas.cpp:360
+        CUDA: pytorch/aten/src/ATen/native/cuda/Blas.cpp:360
             the same as addbmm
 
     Args:
@@ -1162,13 +1176,13 @@ def PYcat(tensors: TensorList, dim: int) -> Tensor:
     concat 操作
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/CatKernel.cpp:24
+        CPU: pytorch/aten/src/ATen/native/cpu/CatKernel.cpp:24
             template <typename scalar_t>
             void cat_serial_kernel_impl(
                 const Tensor& result,
                 const MaterializedITensorListRef& tensors,
                 int64_t dim)
-            /home/haozhe/code/pytorch/aten/src/ATen/native/TensorShape.cpp:552
+            pytorch/aten/src/ATen/native/TensorShape.cpp:552
                 TORCH_IMPL_FUNC(cat_out_cpu)
                 (const ITensorListRef& tensors,
                 int64_t dim,
@@ -1179,7 +1193,7 @@ def PYcat(tensors: TensorList, dim: int) -> Tensor:
                 MemoryFormat memory_format,
                 const Tensor& result)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Shape.cu:377
+        CUDA: pytorch/aten/src/ATen/native/cuda/Shape.cu:377
             TORCH_IMPL_FUNC(cat_out_cuda)
             (const ITensorListRef& tensors,
             int64_t dim,
@@ -1205,7 +1219,7 @@ def PYclamp(self: Tensor, min: Optional[Scalar], max: Optional[Scalar]) -> Tenso
     min(max(a, min), max)
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/TensorCompareKernel.cpp:340
+        CPU: pytorch/aten/src/ATen/native/cpu/TensorCompareKernel.cpp:340
             static void clamp_kernel_impl(TensorIteratorBase& iter)
                 ...
                 std::min(std::max(a, min), max); // 关键代码
@@ -1213,7 +1227,7 @@ def PYclamp(self: Tensor, min: Optional[Scalar], max: Optional[Scalar]) -> Tenso
 
             REGISTER_DISPATCH(clamp_stub, &clamp_kernel_impl);
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/TensorCompare.cu:42
+        CUDA: pytorch/aten/src/ATen/native/cuda/TensorCompare.cu:42
             void clamp_kernel_impl(TensorIteratorBase& iter)
 
     Args:
@@ -1232,7 +1246,7 @@ def PYclone(self: Tensor, memory_format: Optional[MemoryFormat]) -> Tensor:
     clone， 最终调用的是 copy_ 方法
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/TensorFactories.cpp:1598
+        ALL: pytorch/aten/src/ATen/native/TensorFactories.cpp:1598
             Tensor clone(const Tensor& src, c10::optional<c10::MemoryFormat> optional_memory_format) {
             auto memory_format =
                 optional_memory_format.value_or(MemoryFormat::Preserve);
@@ -1287,7 +1301,7 @@ def PYcol2im(
     https://blog.csdn.net/hxxjxw/article/details/124151427
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/Col2Im.cpp:204
+        CPU: pytorch/aten/src/ATen/native/Col2Im.cpp:204
             Tensor col2im_cpu(
                 const Tensor& input,
                 IntArrayRef output_size,
@@ -1296,7 +1310,7 @@ def PYcol2im(
                 IntArrayRef padding,
                 IntArrayRef stride)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/Col2Im.cu: 157
+        CUDA: pytorch/aten/src/ATen/native/cuda/Col2Im.cu: 157
             Tensor col2im_cuda(
                 const Tensor& input,
                 IntArrayRef output_size,
@@ -1324,7 +1338,7 @@ def PYconstant_pad_nd(self: Tensor, pad: List[SymInt], value: Scalar) -> Tensor:
     按常量值对输入的 Tensor 进行 padding， nd 可能是 n-dimension 的缩写
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/PadNd.cpp:29
+        ALL: pytorch/aten/src/ATen/native/PadNd.cpp:29
             Tensor constant_pad_nd(const Tensor& self, IntArrayRef pad, const Scalar& value)
 
     Args:
@@ -1354,17 +1368,17 @@ def PYconvolution(
     https://discuss.pytorch.org/t/source-code-f-conv2d-definition-location/81569/3
 
     Sources:
-        All: /home/haozhe/code/pytorch/aten/src/ATen/native/Convolution.cpp:1031
+        All: pytorch/aten/src/ATen/native/Convolution.cpp:1031
             Tensor _convolution_mode(
                 const Tensor& input, const Tensor& weight, const c10::optional<Tensor>& bias_opt,
                 IntArrayRef stride, c10::string_view padding, IntArrayRef dilation,
                 int64_t groups)
-            /home/haozhe/code/pytorch/aten/src/ATen/native/Convolution.cpp:967
+            pytorch/aten/src/ATen/native/Convolution.cpp:967
             static Tensor convolution_same(
                 const Tensor &input, const Tensor &weight, const Tensor &bias,
                 IntArrayRef stride, IntArrayRef dilation, int64_t groups)
 
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/ConvolutionMM2d.cpp:628
+        CPU: pytorch/aten/src/ATen/native/ConvolutionMM2d.cpp:628
             Tensor slow_conv2d_forward_cpu(
                 const Tensor& self,
                 const Tensor& weight,
@@ -1372,7 +1386,7 @@ def PYconvolution(
                 IntArrayRef stride,
                 IntArrayRef padding)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ConvolutionMM2d.cu:408
+        CUDA: pytorch/aten/src/ATen/native/cuda/ConvolutionMM2d.cu:408
             Tensor slow_conv2d_forward_cuda(
                 const Tensor &self,
                 const Tensor &weight,
@@ -1425,7 +1439,7 @@ def PYconvolution_backward(
     convolution 的反向传播
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/ConvolutionMM2d.cpp:651
+        CPU: pytorch/aten/src/ATen/native/ConvolutionMM2d.cpp:651
             std::tuple<Tensor&, Tensor&, Tensor&> slow_conv2d_backward_out_cpu(
                 const Tensor& grad_output,
                 const Tensor& self,
@@ -1437,7 +1451,7 @@ def PYconvolution_backward(
                 Tensor& grad_weight,
                 Tensor& grad_bias)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/ConvolutionMM2d.cu:420
+        CUDA: pytorch/aten/src/ATen/native/cuda/ConvolutionMM2d.cu:420
             std::tuple<Tensor&, Tensor&, Tensor&> slow_conv2d_backward_out_cuda(
                 const Tensor& grad_output_,
                 const Tensor& self_,
@@ -1473,10 +1487,10 @@ def PYcos(self: Tensor) -> Tensor:
     数学函数
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/cpu/vml.h:71
+        CPU: pytorch/aten/src/ATen/cpu/vml.h:71
             IMPLEMENT_VML(cos)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricCoshKernel.cu
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricCoshKernel.cu
             similar to acos
 
     Args:
@@ -1493,7 +1507,7 @@ def PYcosh(self: Tensor) -> Tensor:
     数学函数
 
     Sources:
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:363
+        CPU: pytorch/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp:363
             static void cosh_kernel(TensorIteratorBase& iter) {
                 AT_DISPATCH_FLOATING_AND_COMPLEX_TYPES_AND2(kBFloat16, kHalf, iter.dtype(), "cosh_cpu", [&]() {
                     cpu_kernel_vec(
@@ -1503,7 +1517,7 @@ def PYcosh(self: Tensor) -> Tensor:
                 });
             }
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/UnaryGeometricCoshKernel.cu
+        CUDA: pytorch/aten/src/ATen/native/cuda/UnaryGeometricCoshKernel.cu
             similar to acos
 
     Args:
@@ -1522,16 +1536,16 @@ def PYdiv_Scalar(self: Tensor, other: Scalar) -> Tensor:
     可以通过 div_out_mode() 方法指定 mode
 
     Sources:
-        ALL: /home/haozhe/code/pytorch/aten/src/ATen/native/BinaryOps.cpp:448
+        ALL: pytorch/aten/src/ATen/native/BinaryOps.cpp:448
             TORCH_IMPL_FUNC(div_out) (const Tensor& self, const Tensor& other, const Tensor& result) {
             div_true_stub(device_type(), *this);
             }
 
-        CPU: /home/haozhe/code/pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:121
+        CPU: pytorch/aten/src/ATen/native/cpu/BinaryOpsKernel.cpp:121
             REGISTER_DISPATCH(div_true_stub, &div_true_kernel);
             void div_true_kernel(TensorIteratorBase& iter)
 
-        CUDA: /home/haozhe/code/pytorch/aten/src/ATen/native/cuda/BinaryDivTrueKernel.cu:20
+        CUDA: pytorch/aten/src/ATen/native/cuda/BinaryDivTrueKernel.cu:20
             REGISTER_DISPATCH(div_true_stub, &binary_internal::div_true_kernel_cuda);
             void div_true_kernel_cuda(TensorIteratorBase& iter)
 
